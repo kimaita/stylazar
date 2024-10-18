@@ -11,12 +11,11 @@ export default function Post() {
         <div className="postInfor">
             <div className="postCateg">
                 <span className="postCateg">Politics</span>
-                <span className="postCateg">Blog</span>
             </div>
             <span className="postTitle">Lorem ipsum dolor sit amet</span>
             <hr />
             <div className="postView">
-            <span className="postDate">30 mins ago</span>
+              <span className="postDate">30 mins ago</span>
               <span className="Icon">
                 <span><i className="postIcon fa-solid fa-heart" /></span>
                 <span><i className="postIcon fa-solid fa-comment" /></span>

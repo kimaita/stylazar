@@ -1,6 +1,6 @@
 .post{
     width: 385px;
-    margin: 0px 25px 40px 25px;
+    margin: 5px 20px 40px 60px;
 }
 
 .postImg{
@@ -12,13 +12,12 @@
 
 .postInfor{
     display: flex;
-    align-items: center;
     flex-direction: column;
 }
 
 .postCateg{
-    font-family: "Varela Round", sans-serif;
-    font-size: 11px;
+    font-family: "Lora", serif;
+    font-size: 12px;
     color: #be9656;
     line-height: 20px;
     margin-top: 15px;
@@ -54,6 +53,12 @@
     margin-right: 10px;
 }
 
+.Icon{
+    font-size: 14px;
+    color: #999;
+    margin-right: 60px;
+    cursor: pointer;
+}
 .postIcon:hover{
     color:#444;
 }
