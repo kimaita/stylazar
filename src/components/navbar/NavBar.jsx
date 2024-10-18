@@ -9,11 +9,11 @@ export default function NavBar() {
         <div className="navcenter">
             <ul className="navList">
                 <li className="navListItem">
-                    <Link className="link" to="/">HOME</Link>
+                    <Link className="navLink" to="/">HOME</Link>
                 </li>
-                <li className="navListItem"><Link className="link" to="/">ABOUT US</Link></li>
-                <li className="navListItem"><Link className="link" to="/">CREATE</Link></li>
-                <li className="navListItem"><Link className="link" to="/">PROFILE</Link></li>
+                <li className="navListItem"><Link className="navLink" to="/">ABOUT US</Link></li>
+                <li className="navListItem"><Link className="navLink" to="/">CREATE</Link></li>
+                <li className="navListItem"><Link className="navLink" to="/">PROFILE</Link></li>
                 <li className="navListItem">
                     {user && "SIGNOUT"}
                 </li>
