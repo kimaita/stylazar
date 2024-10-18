@@ -4,7 +4,7 @@
 
 .settingWrapper{
     flex: 9;
-    padding: 20px;
+    padding: 40px;
 }
 
 .settingTitle{
@@ -18,17 +18,25 @@
     font-size: 30px;
     margin-bottom: 20px;
     color: rgb(3, 101, 50);
+    cursor: pointer;
 }
 
 .settingDeleteAccount{
-    font-size: 13px;
+    font-size: 22px;
     cursor: pointer;
-    color: rgb(192, 29, 1)
+    color: red;
+    font-weight: bold;
+}
+
+.settingDeleteAccount:hover{
+    color: lightcoral;
+
 }
 
 .settingForm{
     display: flex;
     flex-direction: column;
+    margin-top: 10px;
 }
 
 .settingPP{
@@ -83,6 +91,11 @@
     font-size: 20px;
     cursor: pointer;
     margin-top: 20px;
+}
+
+.settingUpdate:hover{
+    background-color: lightgreen;
+    color: black;
 }
 
 

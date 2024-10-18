@@ -1,5 +1,4 @@
 import "./singlepost.css";
-import SideBar from "../../components/sidebar/SideBar";
 
 export default function SinglePost() {
   return (

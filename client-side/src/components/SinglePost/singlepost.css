@@ -3,13 +3,13 @@
 }
 
 .singlepostWrapper{
-    padding: 20px;
+    padding: 50px;
     padding-right: 0;
 }
 
 .singlepostImg{
-    width: 100%;
-    height: 300px;
+    width: 70%;
+    height: 340px;
     object-fit: cover;
     border-radius: 5px;
 }
@@ -29,7 +29,7 @@
 }
 
 .singlepostIcon{
-    margin-left: 10px;
+    margin-left: 15px;
     cursor: pointer;
     margin-top: 20px;
 }
@@ -39,7 +39,8 @@
 }
 
 .singlepostIcon:last-child{
-    color: darkred
+    color: darkred;
+    margin-right: 40px;
 }
 
 .singlepostInfor{

@@ -21,7 +21,7 @@ export default function SideBar() {
         </div>
       </div>
       <div className="sidebarItem">
-        <span className="sidebarTitle">CATEGORIES</span>
+        <span className="sidebarTitle">Categories</span>
         <ul className="sidebarList">
             <li className="sidebarListItem">Fashion</li>
             <li className="sidebarListItem">Tech</li>

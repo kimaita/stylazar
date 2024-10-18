@@ -1,4 +1,5 @@
 import "./createpost.css";
+import React, { useState } from 'react';
 
 export default function CreatePost() {
   return (
@@ -33,3 +34,5 @@ export default function CreatePost() {
     </div>
   )
 }
+
+

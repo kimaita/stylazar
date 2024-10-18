@@ -1,6 +1,6 @@
 .post{
-    width: 385px;
-    margin: 5px 20px 40px 60px;
+    width: 380px;
+    margin: 5px 20px 40px 100px;
 }
 
 .postImg{
@@ -18,7 +18,8 @@
 .postCateg{
     font-family: "Lora", serif;
     font-size: 12px;
-    color: #be9656;
+    font-weight: bold;
+    color: green;
     line-height: 20px;
     margin-top: 15px;
     margin-right: 10px;
@@ -60,7 +61,7 @@
     cursor: pointer;
 }
 .postIcon:hover{
-    color:#444;
+    color: green;
 }
 
 .postDescri{
