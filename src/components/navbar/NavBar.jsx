@@ -24,7 +24,7 @@ export default function NavBar() {
                 user ? (
                     <img
                     className="navImg"
-                    src="https://www.pexels.com/photo/profile-view-of-young-redhead-woman-at-sunset-12244374/"
+                    src="../../assets/pic-person-02.jpg"
                     alt=""
             />
                 ) : (
