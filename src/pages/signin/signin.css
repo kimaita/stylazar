@@ -1,0 +1,81 @@
+.signin{
+    display: flex;
+    flex-direction: column;
+    margin: 0;
+    height: calc(100vh - 60px);
+    justify-content: center;
+    align-items: center;
+    background-color: lightgray;
+    background-size: cover;
+}
+
+.signinHeading{
+    font-family: "Varela", sans-serif;
+    font-size: 45px;
+    font-weight: 700;
+    margin-bottom: 20px;
+}
+
+.signinForm{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 20px;
+    background: rgba(255,255,255,0.8);
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+
+.signinForm > label{
+    margin: 10px 0;
+}
+
+.signinInput{
+    width: 100%;
+    padding: 10px;
+    margin: 10px;
+    border: 1px solid lightgray;
+    border-radius: 7px;
+    background-color: white;
+}
+
+.signinButton{
+    width: 100%;
+    padding: 10px;
+    margin: 10px;
+    border: none;
+    border-radius: 7px;
+    background-color: green;
+    color: white;
+    font-family: "Varela", sans-serif;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.signinButton:hover{
+    background-color: lightgreen;
+    color: black;
+}
+
+.signinButton:active{
+    background-color: lightgreen;
+}
+
+.signinButton:focus{
+    outline: none;
+}
+
+.signinlabel{
+    font-family: "Varela", sans-serif;
+    font-size: 16px;
+    margin-top: 20px;
+}
+
+.signinlabellink{
+    font-family: "Varela", sans-serif;
+    font-size: 16px;
+    color: rgb(119, 184, 9);
+    text-decoration: none;
+    margin-left: 10px;
+}
