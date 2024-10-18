@@ -23,12 +23,13 @@
     font-size: 80px;
     font-weight: 700;
     margin-top: 30px;
+    text-shadow: 0 0 7px rgba(42, 42, 42, 0.673);
 }
 
 .registerWelcomeDescription{
     font-size: 16px;
     font-weight: 500;
-    color: white;
+    color: black;
     margin-left: 270px;
     align-items: center;
     margin-bottom: 50px;
