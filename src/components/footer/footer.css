@@ -13,7 +13,7 @@
 
 .footerLeft{
     flex: 3;
-    margin-left: 250px;
+    margin-left: 70px;
     margin-top: 7px;
     font-size: 13px;
     font-family: "Josefin Sans", sans-serif;
@@ -33,6 +33,7 @@
 .footerRight{
     flex: 6;
     margin-top: 10px;
+    margin-left: 300px;
     display: flex;
     font-weight: bold;
     align-items: center;
@@ -41,7 +42,7 @@
 
 .footerRightTitle{
     font-size: 13px;
-    margin-left: 15px;
+    margin-right: 20px;
     align-items: center;
     color: black
 }
