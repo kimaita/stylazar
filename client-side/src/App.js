@@ -17,8 +17,6 @@ function App() {
       <Routes>
         <Route exact path="/" element={<Home />} />
         <Route path="/createpost" element={user ? <CreatePost /> : <Signin />} />
-
-        <Route path="*" component={NotFound} />
       </Routes>
       <Footer />
     </Router>
