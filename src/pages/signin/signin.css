@@ -6,23 +6,45 @@
     justify-content: center;
     align-items: center;
     background-color: lightgray;
+    background-image: 
+    linear-gradient(
+        rgba(104, 104, 104, 0.735),
+        rgba(104, 104, 104, 0.735)
+    ),
+    url("../../assets/pic-about-01.jpg");
     background-size: cover;
+}
+
+.signinWelcome{
+    font-family: "Varela", sans-serif;
+    color: green;
+    text-align: left;
+    padding: 0;
+    margin-top: 0;
+}
+
+.signinWelcomeTitle{
+    font-size: 50px;
+    font-weight: 700;
+    margin-top: 30px;
+    text-shadow: 0 0 10px rgba(32, 32, 32, 0.707);
 }
 
 .signinHeading{
     font-family: "Varela", sans-serif;
-    font-size: 45px;
+    font-size: 40px;
     font-weight: 700;
     margin-bottom: 20px;
+    margin-top: 20px;
 }
 
 .signinForm{
     display: flex;
     flex-direction: column;
     align-items: center;
-    margin-top: 20px;
-    background: rgba(255,255,255,0.8);
-    padding: 20px;
+    margin-top: 10px;
+    background: rgba(255, 255, 255, 0.481);
+    padding: 30px;
     border-radius: 10px;
     box-shadow: 0 0 10px rgba(0,0,0,0.1);
 }
@@ -34,7 +56,7 @@
 .signinInput{
     width: 100%;
     padding: 10px;
-    margin: 10px;
+    margin: 5px;
     border: 1px solid lightgray;
     border-radius: 7px;
     background-color: white;
@@ -70,6 +92,7 @@
     font-family: "Varela", sans-serif;
     font-size: 16px;
     margin-top: 20px;
+    margin-bottom: 50px;
 }
 
 .signinlabellink{

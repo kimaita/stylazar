@@ -4,7 +4,10 @@
     margin: 0;
     align-items: center;
     background-image:
-    linear-gradient(rgba(127, 127, 127, 0.735), rgba(127, 127, 127, 0.735)),
+    linear-gradient(
+        rgba(127, 127, 127, 0.735),
+        rgba(127, 127, 127, 0.735)
+        ),
     url("../../assets/pic-about-01.jpg");
 }
 
@@ -42,7 +45,7 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    margin-top: 25px;
+    margin-top: 20px;
     background: rgba(255, 255, 255, 0.481);
     padding: 30px;
     border-radius: 10px;

@@ -14,7 +14,7 @@ function App() {
   return (
     <Router>
       <NavBar />
-      <Register />
+      <Signin />
       <Footer />
     </Router>
   );

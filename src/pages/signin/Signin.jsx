@@ -4,6 +4,9 @@ import "./signin.css";
 export default function Signin() {
   return (
     <div className="signin">
+        <div className="signinWelcome">
+            <h2 className="signinWelcomeTitle">Welcome Back!</h2>
+        </div>
         <span className="signinHeading">SignIn</span>
         <form className="signinForm">
             <label>Email</label>
