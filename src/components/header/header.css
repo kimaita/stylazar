@@ -1,31 +1,19 @@
 .header{
-    margin-top: 60px;
+    margin-top: 30px;
+    margin-bottom: 30px;
 }
 
-.headerTitles{
+.headerTitle{
     display: flex;
     flex-direction: column;
-    align-items: center;
-    font-family: "Lora", serif;
-    color: #444;
+    margin-left: 100px;
+    margin-bottom: 60px;
+    font-family: "Varela", sans-serif;
+    color: black;
 }
 
-.headerTitlesSmall{
-    font-size: 20px;
-    top: 18%;
+.headerTitleLarge{
+    font-size: 30px;
+    font-weight: 600;
     position: absolute;
-}
-
-.headerTitlesLarge{
-    font-size: 100px;
-    font-weight: 500;
-    top: 20%;
-    position: absolute;
-}
-
-.headerImg{
-    width: 100%;
-    height: 500px;
-    object-fit: cover;
-    margin-top: 80px;
 }
