@@ -1,0 +1,34 @@
+services:
+  postgres:
+    image: postgres:16.4
+    container_name: stylazar_pg
+    restart: always
+    ports:
+      - ${POSTGRES_PORT}:5432
+    env_file: .env
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER}"]
+      interval: 1s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:7
+    container_name: stylazar_rds
+    restart: always
+    env_file: .env
+    ports:
+      - ${REDIS_PORT}:6379
+    command: redis-server --save 60 1 --loglevel warning
+    volumes:
+      - redis_data:/data
+
+  # mongo:
+
+volumes:
+  pgdata:
+  redis_data:
