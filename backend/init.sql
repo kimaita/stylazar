@@ -29,7 +29,7 @@ CREATE TABLE IF NOT EXISTS sessions (
 );
 CREATE TYPE http_method AS ENUM('DELETE', 'GET', 'POST', 'PUT');
 CREATE TABLE IF NOT EXISTS session_activity (
-    session_id UUID REFERENCES sessions(id),
+    session_id UUID REFERENCES sessions,
     performed_at TIMESTAMPTZ NOT NULL,
     route VARCHAR NOT NULL,
     method HTTP_METHOD NOT NULL,

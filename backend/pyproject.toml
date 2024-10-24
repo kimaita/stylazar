@@ -5,8 +5,12 @@ description = "Contains the app's backend - API, storage"
 readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
-    "bcrypt>=4.2.0",
     "fastapi[standard]>=0.115.2",
+    "passlib[bcrypt]>=1.7.4",
     "psycopg>=3.2.3",
+    "pydantic-settings>=2.6.0",
+    "pyjwt>=2.9.0",
+    "pymongo>=4.10.1",
+    "redis>=5.1.1",
     "sqlmodel>=0.0.22",
 ]

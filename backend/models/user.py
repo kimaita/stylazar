@@ -41,8 +41,10 @@ class User(UpdateModel, table=True):
     password: str = Field()
 
     visitors: list["Visitor"] | None = Relationship(
-        back_populates="visitors", link_model=UserIp
+        back_populates="user", link_model=UserIp
     )
+
+    posts: list["Post"] = Relationship(back_populates='author')
 
 
 class UserRegister(SQLModel):

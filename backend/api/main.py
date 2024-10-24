@@ -1,20 +1,19 @@
 """api server module"""
 
 from fastapi import APIRouter
-from .v1.routes import users
+from .routes import users, login, posts
 
 
-api_router = APIRouter(prefix="/api/v1")
+api_router = APIRouter()
 
 api_router.include_router(users.router)
+api_router.include_router(login.router)
+api_router.include_router(posts.router)
 
 
 @api_router.get("/status")
 async def status() -> dict:
     """Returns the API status"""
     return {
-        "status": True,
-        "mongo": True,
-        "redis": True,
-        "postgres": True,
+        "status": 'OK',
     }
