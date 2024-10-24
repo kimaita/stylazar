@@ -7,7 +7,7 @@ from sqlalchemy.dialects.postgresql import ARRAY, JSONB
 from sqlalchemy.types import String
 from sqlmodel import AutoString, Column, Field, Relationship, SQLModel
 
-from .base_model import BaseModel
+from .base_model import UpdateModel
 
 
 class UserIp(SQLModel, table=True):
@@ -27,7 +27,7 @@ class UserIp(SQLModel, table=True):
     )
 
 
-class User(BaseModel, table=True):
+class User(UpdateModel, table=True):
     """Database user table"""
 
     __tablename__ = "users"
@@ -40,19 +40,9 @@ class User(BaseModel, table=True):
     interests: list[str] | None = Field(default=None, sa_column=Column(ARRAY(String)))
     password: str = Field()
 
-    # visitors: list["Visitor"] | None = Relationship(
-    #     back_populates="visitors", link_model=UserIp
-    # )
-
-
-class Visitor(BaseModel, table=True):
-    """Database visitor table"""
-
-    __tablename__ = "visitors"
-
-    ip_address: str = Field(index=True)
-
-    # user: User | None = Relationship(back_populates="users", link_model=UserIp)
+    visitors: list["Visitor"] | None = Relationship(
+        back_populates="visitors", link_model=UserIp
+    )
 
 
 class UserRegister(SQLModel):

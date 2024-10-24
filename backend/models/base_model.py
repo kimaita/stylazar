@@ -22,3 +22,12 @@ class BaseModel(SQLModel):
         sa_column_kwargs={"server_default": text("CURRENT_TIMESTAMP")},
         nullable=False,
     )
+
+class UpdateModel(BaseModel):
+    """Adds updated_at field to a base model"""
+    updated_at: datetime | None = Field(
+        default=None,
+        sa_type=TIMESTAMP(timezone=True),
+        sa_column_kwargs={"server_default": text("CURRENT_TIMESTAMP")},
+        nullable=False,
+    )

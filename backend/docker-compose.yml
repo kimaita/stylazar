@@ -28,6 +28,18 @@ services:
       - redis_data:/data
 
   # mongo:
+  mongo:
+    image: mongo
+    container_name: stylazar_mongo
+    ports:
+      - ${MONGO_PORT}:27017"
+    restart: always
+    logging:
+      options:
+        max-size: 1g
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=mongoadmin
+      - MONGO_INITDB_ROOT_PASSWORD=bdung
 
 volumes:
   pgdata:

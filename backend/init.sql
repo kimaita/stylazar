@@ -7,21 +7,23 @@ CREATE TABLE IF NOT EXISTS users (
     picture_url VARCHAR,
     password VARCHAR NOT NULL,
     created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
     interests TEXT []
 );
-CREATE TABLE IF NOT EXISTS visits (
+CREATE TABLE IF NOT EXISTS visitors (
     id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
     created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
-    ip_address VARCHAR(15) UNIQUE NOT NULL
+    ip_address VARCHAR(15) UNIQUE NOT NULL,
+    updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
 );
 CREATE TABLE IF NOT EXISTS user_ips (
     user_id UUID REFERENCES users,
-    visit_id UUID REFERENCES visits,
+    visitor_id UUID REFERENCES visitors,
     PRIMARY KEY(user_id, visitor_id)
 );
 CREATE TABLE IF NOT EXISTS sessions (
     id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-    visit_id UUID REFERENCES visits,
+    visitor_id UUID REFERENCES visitors,
     created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
     destroyed_at TIMESTAMPTZ
 );
@@ -42,7 +44,8 @@ CREATE TABLE IF NOT EXISTS posts (
     slug VARCHAR(100) UNIQUE NOT NULL,
     display_excerpt VARCHAR(300),
     is_public BOOLEAN DEFAULT TRUE,
-    is_published BOOLEAN DEFAULT TRUE
+    is_published BOOLEAN DEFAULT FALSE,
+    updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
 );
 CREATE TABLE IF NOT EXISTS categories (
     id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
@@ -59,5 +62,13 @@ CREATE TABLE IF NOT EXISTS comments (
     user_id UUID REFERENCES users,
     post_id UUID REFERENCES posts,
     created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
     body VARCHAR NOT NULL
+);
+CREATE TABLE IF NOT EXISTS post_reaction (
+    post_id UUID REFERENCES posts,
+    visitor_id UUID REFERENCES visitors,
+    like BOOLEAN DEFAULT TRUE, -- like vs dislike
+    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY(post_id, visitor_id)
 );

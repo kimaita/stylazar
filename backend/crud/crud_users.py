@@ -4,12 +4,12 @@ import uuid
 
 from sqlmodel import Session, select
 
+from core.db import pg_engine
 from models.user import User, UserPublic, UserRegister, Visitor
-from storage.datastore import pg_engine
-from utils.security import hash_password
+from core.security import hash_password, verify_password
 
 
-async def commit_to_db(session: Session, obj):
+def commit_to_db(session: Session, obj):
     """"""
     session.add(obj)
     session.commit()
@@ -17,7 +17,7 @@ async def commit_to_db(session: Session, obj):
     return obj
 
 
-async def log_ip_address(ip_addr: str):
+def log_ip_address(ip_addr: str):
     """Saves the request IP address to storage
 
     Args:
@@ -25,14 +25,15 @@ async def log_ip_address(ip_addr: str):
     """
 
     with Session(pg_engine) as session:
-        if not check_logged_ip(session, ip_addr):
+        ip_exists = get_logged_ip(session, ip_addr)
+        if not ip_exists:
             obj = Visitor(ip_address=ip_addr)
             db_visitor = Visitor.model_validate(obj)
             session.add(db_visitor)
             session.commit()
 
 
-def check_logged_ip(session: Session, ip: str):
+def get_logged_ip(session: Session, ip: str) -> Visitor | None:
     statement = select(Visitor).where(Visitor.ip_address == ip)
     try:
         return session.exec(statement).one()
@@ -40,7 +41,7 @@ def check_logged_ip(session: Session, ip: str):
         return None
 
 
-async def register_user(session: Session, user_obj: UserRegister) -> UserPublic:
+def register_user(session: Session, user_obj: UserRegister) -> UserPublic:
     """Adds a user to the database and returns the object.
 
     The password is first hashed
@@ -48,10 +49,10 @@ async def register_user(session: Session, user_obj: UserRegister) -> UserPublic:
     updated_pwd = {"password": hash_password(user_obj.password)}
     db_user = User.model_validate(user_obj, update=updated_pwd)
 
-    return await commit_to_db(session, db_user)
+    return commit_to_db(session, db_user)
 
 
-async def get_user_by_id(session: Session, id: uuid.UUID) -> User | None:
+def get_user_by_id(session: Session, id: uuid.UUID) -> User | None:
     """Retrieves a single user based on the provided id
 
     Args:
@@ -61,10 +62,13 @@ async def get_user_by_id(session: Session, id: uuid.UUID) -> User | None:
     Returns:
         User|None: The user associated with `id`, None otherwise
     """
-    return session.get(User, id)
+    try:
+        return session.get(User, id)
+    except Exception:
+        return None
 
 
-async def get_user_by_email(session: Session, email: str) -> User | None:
+def get_user_by_email(session: Session, email: str) -> User | None:
     """Retrieves a user based on the provided email address
     Args:
         email (str): email to search
@@ -77,3 +81,14 @@ async def get_user_by_email(session: Session, email: str) -> User | None:
         return session.exec(statement).one()
     except Exception:
         return None
+
+
+def authenticate_user(session: Session, email: str, password: str) -> User | None:
+    """"""
+    user = get_user_by_email(session, email)
+    print(f'authenticated {email}')
+    if not user:
+        return
+    if not verify_password(password, user.password):
+        return
+    return user
