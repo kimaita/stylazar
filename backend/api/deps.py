@@ -9,7 +9,7 @@ from jwt.exceptions import InvalidTokenError
 from sqlmodel import Session
 
 from crud.crud_users import get_user_by_id
-from models.token import TokenData
+from models.util import TokenData
 from models.user import User
 from core.db import pg_engine
 from core.config import settings

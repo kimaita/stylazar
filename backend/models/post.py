@@ -1,12 +1,15 @@
 """"""
 
 import uuid
-from .base_model import UpdateModel
+from datetime import datetime
+
 from sqlmodel import Field, Relationship, SQLModel
+
+from .base_model import BaseModel, UpdatableModel
 from .user import User
 
 
-class Post(UpdateModel, table=True):
+class Post(BaseModel, UpdatableModel, table=True):
     """Database posts model"""
 
     __tablename__ = "posts"
@@ -20,6 +23,8 @@ class Post(UpdateModel, table=True):
     is_published: bool = Field(default=True)
 
     author: User | None = Relationship(back_populates="posts")
+    comments: list["Comment"] = Relationship(back_populates="post")
+    reactions: list["PostReaction"] = Relationship(back_populates="post")
 
 
 class PostCreate(SQLModel):
@@ -39,10 +44,17 @@ class PostUpdate(PostCreate):
     # body: str | None = None
     is_public: bool | None = None
     is_published: bool | None = None
+    updated_at: datetime = Field()
 
 
-class PostReact(SQLModel):
+class PostReaction(UpdatableModel, table=True):
     """Post Reaction"""
 
-    id: uuid.UUID
-    upvote: bool
+    __tablename__ = "post_reaction"
+
+    post_id: uuid.UUID = Field(foreign_key="posts.id", primary_key=True)
+    visitor_id: uuid.UUID = Field(foreign_key="visitors.id", primary_key=True)
+    upvoted: bool = Field(default=True)
+
+    post: Post = Relationship(back_populates="reactions")
+    # visitor : Visitor = Relationship()

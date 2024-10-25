@@ -16,6 +16,9 @@ class BaseModel(SQLModel):
         default_factory=uuid.uuid4,
         primary_key=True,
     )
+
+
+class TimestampedModel(SQLModel):
     created_at: datetime | None = Field(
         default=None,
         sa_type=TIMESTAMP(timezone=True),
@@ -23,11 +26,13 @@ class BaseModel(SQLModel):
         nullable=False,
     )
 
-class UpdateModel(BaseModel):
+
+class UpdatableModel(TimestampedModel):
     """Adds updated_at field to a base model"""
+
     updated_at: datetime | None = Field(
-        default=None,
+        default_factory=datetime.utcnow,
         sa_type=TIMESTAMP(timezone=True),
-        sa_column_kwargs={"server_default": text("CURRENT_TIMESTAMP")},
+        sa_column_kwargs={"onupdate": datetime.utcnow},
         nullable=False,
     )

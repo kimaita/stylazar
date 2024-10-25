@@ -14,7 +14,7 @@ CREATE TABLE IF NOT EXISTS visitors (
     id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
     created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
     ip_address VARCHAR(15) UNIQUE NOT NULL,
-    updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
 );
 CREATE TABLE IF NOT EXISTS user_ips (
     user_id UUID REFERENCES users,
@@ -27,12 +27,13 @@ CREATE TABLE IF NOT EXISTS sessions (
     created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
     destroyed_at TIMESTAMPTZ
 );
-CREATE TYPE http_method AS ENUM('DELETE', 'GET', 'POST', 'PUT');
+CREATE TYPE http_method AS ENUM('DELETE', 'GET', 'PATCH', 'POST', 'PUT');
 CREATE TABLE IF NOT EXISTS session_activity (
     session_id UUID REFERENCES sessions,
     performed_at TIMESTAMPTZ NOT NULL,
     route VARCHAR NOT NULL,
     method HTTP_METHOD NOT NULL,
+    response_code INT, 
     PRIMARY KEY (session_id, performed_at)
 );
 CREATE TABLE IF NOT EXISTS posts (
@@ -45,7 +46,7 @@ CREATE TABLE IF NOT EXISTS posts (
     display_excerpt VARCHAR(300),
     is_public BOOLEAN DEFAULT TRUE,
     is_published BOOLEAN DEFAULT FALSE,
-    updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
 );
 CREATE TABLE IF NOT EXISTS categories (
     id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
@@ -68,7 +69,8 @@ CREATE TABLE IF NOT EXISTS comments (
 CREATE TABLE IF NOT EXISTS post_reaction (
     post_id UUID REFERENCES posts,
     visitor_id UUID REFERENCES visitors,
-    like BOOLEAN DEFAULT TRUE, -- like vs dislike
+    upvoted BOOLEAN DEFAULT TRUE, -- like vs dislike
     created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY(post_id, visitor_id)
 );

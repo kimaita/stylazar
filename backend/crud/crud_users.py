@@ -5,7 +5,8 @@ import uuid
 from sqlmodel import Session, select
 
 from core.db import pg_engine
-from models.user import User, UserPublic, UserRegister, Visitor
+from models.user import User, UserPublic, UserRegister, UserUpdate
+from models.visitor import Visitor
 from core.security import hash_password, verify_password
 
 
@@ -86,9 +87,34 @@ def get_user_by_email(session: Session, email: str) -> User | None:
 def authenticate_user(session: Session, email: str, password: str) -> User | None:
     """"""
     user = get_user_by_email(session, email)
-    print(f'authenticated {email}')
+    print(f"authenticated {email}")
     if not user:
         return
     if not verify_password(password, user.password):
         return
     return user
+
+
+def update_user(
+    session: Session,
+    current_user: User,
+    user_in: UserUpdate,
+) -> User:
+    """Updates a user"""
+    extra_data: dict = {}
+    user_data = user_in.model_dump(exclude_unset=True)
+
+    if "interests" in user_data and current_user.interests:
+        user_data["interests"] += current_user.interests
+
+    current_user.sqlmodel_update(user_data, update=extra_data)
+    session.add(current_user)
+    session.commit()
+    session.refresh(current_user)
+    return current_user
+
+    def USER_PROFILE_PIC(self, user_id: str) -> str:
+        user_folder = f"{self.PROFILE_IMAGES}/user_id"
+        full = f"{user_folder}/{user_id}-full"
+        thumbnail = f"{user_folder}/{user_id}-thmb"
+        return

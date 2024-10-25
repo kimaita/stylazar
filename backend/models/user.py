@@ -6,8 +6,8 @@ from pydantic import EmailStr, Json
 from sqlalchemy.dialects.postgresql import ARRAY, JSONB
 from sqlalchemy.types import String
 from sqlmodel import AutoString, Column, Field, Relationship, SQLModel
-
-from .base_model import UpdateModel
+from datetime import datetime, timezone
+from .base_model import BaseModel, UpdatableModel
 
 
 class UserIp(SQLModel, table=True):
@@ -27,7 +27,7 @@ class UserIp(SQLModel, table=True):
     )
 
 
-class User(UpdateModel, table=True):
+class User(BaseModel, UpdatableModel, table=True):
     """Database user table"""
 
     __tablename__ = "users"
@@ -44,7 +44,8 @@ class User(UpdateModel, table=True):
         back_populates="user", link_model=UserIp
     )
 
-    posts: list["Post"] = Relationship(back_populates='author')
+    posts: list["Post"] = Relationship(back_populates="author")
+    comments: list["Comment"] = Relationship(back_populates="user")
 
 
 class UserRegister(SQLModel):
@@ -52,7 +53,7 @@ class UserRegister(SQLModel):
 
     name: str
     email: EmailStr
-    password: str
+    password: str = Field(min_length=8, max_length=40)
 
 
 class UserPublic(SQLModel):
@@ -67,7 +68,18 @@ class UserPublic(SQLModel):
     interests: list[str] | None = None
 
 
-class UserUpdate(UserPublic):
+class UserUpdate(SQLModel):
     """Handles update requests"""
 
-    password: str | None = None
+    name: str | None = None
+    email: EmailStr | None = None
+    bio: str | None = None
+    social_links: Json | None = None
+    interests: list[str] | None = None
+
+
+class UpdatePassword(SQLModel):
+    """Active user password changes"""
+
+    current_password: str = Field(min_length=8, max_length=40)
+    new_password: str = Field(min_length=8, max_length=40)

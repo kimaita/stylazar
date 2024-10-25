@@ -1,10 +1,12 @@
 from typing import Any
 import uuid
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, UploadFile
 
 from ..deps import SessionDep, CurrentUser
 from crud import crud_users
-from models.user import UserPublic, UserRegister
+from models.user import UserPublic, UserRegister, UpdatePassword, UserUpdate
+from models.util import Message
+from core.security import hash_password, verify_password
 
 router = APIRouter(prefix="/users")
 
@@ -34,6 +36,50 @@ def retrieve_profile(current_user: CurrentUser) -> Any:
     return current_user
 
 
+# TODO:Implement profile update - social links
+@router.patch("/me", response_model=UserPublic)
+def update_profile(
+    session: SessionDep, user_in: UserUpdate, current_user: CurrentUser
+) -> Any:
+    """Update user profile."""
+    if user_in.email:
+        existing_user = crud_users.get_user_by_email(
+            session=session, email=user_in.email
+        )
+        if existing_user and existing_user.id != current_user.id:
+            raise HTTPException(
+                status_code=409, detail="This email address is unavailable"
+            )
+    return crud_users.update_user(
+        session=session, current_user=current_user, user_in=user_in
+    )
+
+
+@router.patch("/me/password", response_model=Message)
+def update_password(
+    session: SessionDep, body: UpdatePassword, current_user: CurrentUser
+) -> Any:
+    """Update current password"""
+    if not verify_password(body.current_password, current_user.password):
+        raise HTTPException(status_code=400, detail="Incorrect password")
+    if body.current_password == body.new_password:
+        raise HTTPException(
+            status_code=400, detail="New password cannot be the same as the current one"
+        )
+    hashed_password = hash_password(body.new_password)
+    current_user.password = hashed_password
+    session.add(current_user)
+    session.commit()
+    return Message(message="Password updated successfully")
+
+@router.post("/me/pic", response_model='')
+def update_profile_pic(
+    image: UploadFile, session: SessionDep, current_user: CurrentUser
+) -> Any:
+    """Update user's profile picture"""
+    file_name = settings
+
+
 @router.get("/{user_id}", response_model=UserPublic)
 def retrieve_user(session: SessionDep, user_id: uuid.UUID) -> Any:
     """Retrieves a user profile given an id"""
@@ -44,3 +90,43 @@ def retrieve_user(session: SessionDep, user_id: uuid.UUID) -> Any:
             detail="No user found",
         )
     return user
+
+
+#  TODO: Implement user posts retrieval
+@router.get(
+    "/{user_id}/posts",
+    response_model="",
+)
+def retrieve_user_posts():
+    """Get posts by a user"""
+    raise NotImplementedError
+
+
+# TODO: Implement user drafts retrieval
+@router.get(
+    "/{user_id}/drafts",
+    response_model="",
+)
+def retrieve_user_drafts(current_user: CurrentUser):
+    """Get post drafts for a user"""
+    raise NotImplementedError
+
+
+# TODO: Implement user history retrieval
+@router.get(
+    "/{user_id}/history",
+    response_model="",
+)
+def retrieve_user_history(current_user: CurrentUser):
+    """Get reading history for a user"""
+    raise NotImplementedError
+
+
+# TODO: Implement user likes retrieval
+@router.get(
+    "/{user_id}/likes",
+    response_model="",
+)
+def retrieve_user_likes(current_user: CurrentUser):
+    """Get posts upvoted by a user"""
+    raise NotImplementedError

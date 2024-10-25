@@ -1,8 +1,9 @@
 """"""
 
-from pydantic import PostgresDsn, computed_field
+from pydantic import PostgresDsn, MongoDsn, computed_field
 from pydantic_core import MultiHostUrl
 from pydantic_settings import BaseSettings, SettingsConfigDict
+import os
 
 
 class Settings(BaseSettings):
@@ -21,6 +22,10 @@ class Settings(BaseSettings):
     POSTGRES_PORT: int
 
     REDIS_PORT: int
+
+    MONGO_PORT: int
+    MONGO_HOST: str
+    MONGO_INITDB_DATABASE: str
 
     API_V1_PREFIX: str = "/api/v1"
     API_PORT: int
@@ -43,6 +48,24 @@ class Settings(BaseSettings):
             port=self.POSTGRES_PORT,
             path=self.POSTGRES_DB,
         )
+
+    @computed_field  # type: ignore[prop-decorator]
+    @property
+    def MONGO_DATABASE_URI(self) -> MongoDsn:
+        return MultiHostUrl.build(
+            scheme="mongodb",
+            #         username="",
+            #         password="",
+            host=self.MONGO_HOST,
+            port=self.MONGO_PORT,
+        )
+
+    # S3
+    BUCKET_NAME: str = "stylazar"
+    STORAGE_IMAGES: str = "images"
+    PROFILE_IMAGES: str = f"{STORAGE_IMAGES}/profiles"
+    POST_IMAGES: str = f"{STORAGE_IMAGES}/posts"
+    DEFAULT_POST_IMAGES: str = f"{POST_IMAGES}/defaults"
 
 
 settings = Settings()

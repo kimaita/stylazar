@@ -2,10 +2,10 @@ from datetime import timedelta
 from typing import Annotated
 
 from crud.crud_users import authenticate_user
-from api.deps import SessionDep
+from api.deps import SessionDep, CurrentUser
 from core.security import create_access_token
 from core.config import settings
-from models.token import Token
+from models.util import Token
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
 
@@ -37,12 +37,15 @@ def login_access_token(
     )
     return Token(access_token=access_token, token_type="bearer")
 
-
+# TODO: Implement password reset token generation - forgotten
 @router.post('/password/reset_token')
 def get_reset_token():
     """"""
-    
+    raise NotImplementedError
+
+# TODO: Implement password resetting - forgotten
 @router.post('/password/reset')
 def reset_password():
     """"""
+    raise NotImplementedError
 
