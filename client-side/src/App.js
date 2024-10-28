@@ -8,7 +8,6 @@ import CreatePost from "./pages/createpost/CreatePost";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { Outlet } from 'react-router-dom';
 import Post from "./components/post/Post";
-import SideBar from "./components/sidebar/SideBar";
 import Landingpage from "./components/landingpage/landingpage";
 import ErrorPage from "./pages/errorpage/ErrorPage";
 import Profile from "./pages/profile/Profile";
