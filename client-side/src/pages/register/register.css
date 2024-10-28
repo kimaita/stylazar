@@ -13,14 +13,14 @@
 
 .registerWelcome{
     font-family: "Varela", sans-serif;
-    color: green;
+    color: rgb(0, 163, 0);
     text-align: left;
     padding: 0;
     margin-top: 0;
 }
 
 .registerWelcomeTitle{
-    font-size: 80px;
+    font-size: 70px;
     font-weight: 700;
     margin-top: 30px;
     text-shadow: 0 0 7px rgba(42, 42, 42, 0.673);
