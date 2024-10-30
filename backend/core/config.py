@@ -1,9 +1,10 @@
 """"""
 
-from pydantic import PostgresDsn, MongoDsn, computed_field
+from pydantic import MongoDsn, PostgresDsn, computed_field
 from pydantic_core import MultiHostUrl
 from pydantic_settings import BaseSettings, SettingsConfigDict
-import os
+
+from botocore.config import Config
 
 
 class Settings(BaseSettings):
@@ -26,6 +27,8 @@ class Settings(BaseSettings):
     MONGO_PORT: int
     MONGO_HOST: str
     MONGO_INITDB_DATABASE: str
+    MONGO_INITDB_ROOT_USERNAME: str
+    MONGO_INITDB_ROOT_PASSWORD: str
 
     API_V1_PREFIX: str = "/api/v1"
     API_PORT: int
@@ -54,8 +57,8 @@ class Settings(BaseSettings):
     def MONGO_DATABASE_URI(self) -> MongoDsn:
         return MultiHostUrl.build(
             scheme="mongodb",
-            #         username="",
-            #         password="",
+            username=self.MONGO_INITDB_ROOT_USERNAME,
+            password=self.MONGO_INITDB_ROOT_PASSWORD,
             host=self.MONGO_HOST,
             port=self.MONGO_PORT,
         )
