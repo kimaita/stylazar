@@ -2,7 +2,7 @@ import "./createpost.css";
 import React, { useState } from 'react';
 import ReactQuill from "react-quill";
 import 'react-quill/dist/quill.snow.css'; // Import styles
-import DOMPurify from 'dompurify';
+import { Link, useLinkClickHandler } from "react-router-dom";
 
 const modules = {
   toolbar: [
@@ -11,7 +11,6 @@ const modules = {
   [{ color: [] }, { background: [] } ],
   [{ size: [] }],
   [{ script:  "sub" }, { script:  "super" }],
-  ["blockquote", "code-block"],
   ["bold", "italic", "underline", "strike", "blockquote", "code-block"],
   [{ list: 'ordered' }, { list: 'bullet' }],
   [{ indent: '-1' }, { indent: '+1' }, { align: [] }],
@@ -27,12 +26,6 @@ export default function CreatePost() {
     console.log(value);
   }
 
-  const createMarkup = (html) => {
-    return {
-      __html: DOMPurify.sanitize(html),
-    };
-  };
-
   return (
     <div className="createPost">
       <div className="createHeader">Create Post</div>
@@ -44,19 +37,21 @@ export default function CreatePost() {
             placeholder="Title"
             autoFocus={true} />
         </div>
-        <div className="createFormGroup">
+        <div>
           <ReactQuill
             theme="snow"
+            className="createFormGroup"
             value={value}
             onChange={setValue}
             modules={modules}
             placeholder="Write something amazing..."
             />
-          <div style={{ marginTop: '20px' }}>
-            <div dangerouslySetInnerHTML={{ __html: value }} />
-          </div>
         </div>
-        <button className="createSubmit">Publish</button>
+        <div className="createButton">
+          <button className="createSubmit" onClick={handler}>
+            <Link className="Link" to="/">Publish</Link>
+          </button>
+        </div>
       </form>
     </div>
   )

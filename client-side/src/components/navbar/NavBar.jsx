@@ -40,10 +40,10 @@ export default function NavBar() {
                 ) : (
                     <ul className="navList">
                         <li className="navListItem">
-                            <Link className="Link" to="/signin">SignIn</Link>
+                            <Link className="Link" to="/signin">SIGNIN</Link>
                         </li>
                         <li className="navListItem">
-                            <Link className="Link" to="/register">Get Started</Link>
+                            <Link className="Link" to="/register">GET STARTED</Link>
                         </li>
                     </ul>
                 )

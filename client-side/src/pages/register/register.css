@@ -8,7 +8,8 @@
         rgba(127, 127, 127, 0.735),
         rgba(127, 127, 127, 0.735)
         ),
-    url("../../assets/pic-about-01.jpg");
+    url("../../assets/pexels-pixabay-372748.jpg");
+    background-size: cover;
 }
 
 .registerWelcome{
@@ -22,24 +23,26 @@
 .registerWelcomeTitle{
     font-size: 70px;
     font-weight: 700;
-    margin-top: 30px;
+    margin-top: 20px;
     text-shadow: 0 0 7px rgba(42, 42, 42, 0.673);
 }
 
 .registerWelcomeDescription{
     font-size: 16px;
     font-weight: 500;
-    color: black;
-    margin-left: 270px;
+    color: white;
+    margin-left: 220px;
     align-items: center;
-    margin-bottom: 50px;
+    margin-bottom: 30px;
 }
 
 .registerHeading{
     font-family: "Varela", sans-serif;
     font-size: 40px;
     font-weight: 700;
-    color: green;   
+    color: rgb(0, 163, 0);
+    text-shadow: 0 0 7px rgba(42, 42, 42, 0.673);
+    margin-top: 0;
 }
 
 .registerForm{

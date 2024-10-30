@@ -7,9 +7,8 @@ import axios from "axios"
 export default function Home() {
   const [posts, setPosts] = useState(null);
 
-
   useEffect(() => {
-    fetch('https://localhost:3000/api/posts', {
+    fetch('https://localhost:3001/api/posts', {
       headers: {
         Authorization: `Bearer ${localStorage.getItem('token')}`
       },

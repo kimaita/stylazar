@@ -17,16 +17,7 @@ function App() {
   return (
     <Router>
       <NavBar />
-      <Outlet />
-      <Routes>
-        <Route path="/landingpage" element={<Landingpage />} />
-        <Route path="/" element={user? <Home /> : <Register />} />
-        <Route path="/register" element={user ? <Home /> : <Register />} />
-        <Route path="/signin" element={<Signin />} />
-        <Route path="/createpost" element={user ? <CreatePost /> : <Register />} />
-        <Route path="/profile" element={user ? <Profile /> : <Register />} />
-        <Route path="/SinglePost/:postId" element={<SinglePost />} />
-      </Routes>
+      <Profile />
       <Footer />
     </Router>
   );

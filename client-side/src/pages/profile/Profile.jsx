@@ -1,59 +1,31 @@
-import React from 'react'
+import React, { useState } from 'react'
 import "./profile.css"
-import { useState, useEffect } from 'react';
-import axios from 'axios';
-import SignIn from '../signin/Signin';
+import { Form, Field } from 'react-final-form'
+import { Link } from 'react-router-dom'
+import ProfilePopup from "../../components/profilepopup/ProfilePopup";
+import ReactProfile from "react-profile";
 
 const Profile = () => {
-    const [user, setUser] = useState(null);
-   
-    useEffect(() => {
-      const fetchUser = async () => {
-        const userData = await axios.getUser();
-        setUser(userData);
-      };
-   
-      fetchUser();
-    }, []);
-   
-    const handleUpdateProfile = async (event) => {
-      event.preventDefault();
-      const updatedUser = {
-        ...user,
-        [event.target.name]: event.target.value,
-      };
-      await axios.AxiosupdateUser(updatedUser);
-      setUser(updatedUser);
-    };
-    if (!axios.isAuthenticated()) return <SignIn to="/signin" />;
-    if (!user) return <div>Loading...</div>;
+  const [popUp, setPopup] = useState(false);
+  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
 
   return (
-    <div>
-      <h2>User Profile</h2>
-     <form onSubmit={handleUpdateProfile}>
-       <label>
-         Name:
-         <input
-           type="text"
-           name="name"
-           value={user.name || ''}
-           onChange={handleUpdateProfile}
-         />
-       </label>
-       <label>
-         Email:
-         <input
-           type="email"
-           name="email"
-           value={user.email || ''}
-           onChange={handleUpdateProfile}
-         />
-       </label>
-       <button type="submit">Update Profile</button>
-     </form>
+    <div className='profile'>
+      <div className="profileRight">
+      <h1>User Profile</h1>
+      <ReactProfile src="../../assets" />;
+        <div className="profileInfo">
+          <h4>Username: <span className="profileInfoName" onClick={setUsername}>John Doe</span></h4>
+          <h4>Email: <span className="profileInfoName" onClick={setEmail}>johndoe@gmail.com</span></h4>
+        </div>
+        <div className="profileUpdate">
+        <ProfilePopup />
+        </div>
+      </div>
     </div>
-  )
-}
+  );
+};
 
 export default Profile
