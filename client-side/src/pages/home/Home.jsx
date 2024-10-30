@@ -5,10 +5,10 @@ import { useEffect, useState } from "react"
 import axios from "axios"
 
 export default function Home() {
-  const [posts, setPosts] = useState(null);
+  const [posts, setPosts] = useState([]);
 
   useEffect(() => {
-    fetch('https://localhost:3001/api/posts', {
+    fetch('https://localhost:8000/api/posts', {
       headers: {
         Authorization: `Bearer ${localStorage.getItem('token')}`
       },
@@ -16,14 +16,10 @@ export default function Home() {
     .then(res => res.json())
     .catch(error => console.log(error));
     }, []);
-    const user = localStorage.getItem('user');
-    const email = localStorage.getItem('email');
+    
   return (
     <div>
       <Header />
-      {user && (
-    <p>Welcome {user}, {email}</p>
-      )}
       <Posts />
     </div>
   )
