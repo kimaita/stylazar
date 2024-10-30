@@ -1,35 +1,57 @@
 import "./createpost.css";
 import React, { useState } from 'react';
+import ReactQuill from "react-quill";
+import 'react-quill/dist/quill.snow.css'; // Import styles
+import { Link, useLinkClickHandler } from "react-router-dom";
+
+const modules = {
+  toolbar: [
+  [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
+  [{ 'font': [] }],
+  [{ color: [] }, { background: [] } ],
+  [{ size: [] }],
+  [{ script:  "sub" }, { script:  "super" }],
+  ["bold", "italic", "underline", "strike", "blockquote", "code-block"],
+  [{ list: 'ordered' }, { list: 'bullet' }],
+  [{ indent: '-1' }, { indent: '+1' }, { align: [] }],
+  ["link", "image", "video"],
+  ["clean"] // removes formatting button
+  ],
+};
 
 export default function CreatePost() {
+  const [value, setValue] = useState("");
+
+  function handler() {
+    console.log(value);
+  }
+
   return (
-    <div className="createpost">
-        <img
-            className="createImg"
-            src="https://images.pexels.com/photos/28927824/pexels-photo-28927824/free-photo-of-abstract-artistic-image-of-birch-tree-forest.jpeg?auto=compress&cs=tinysrgb&w=400&lazy=load"
-            alt=""
-        />
-        <form className="createForm">
-        <div className="createFormGroup">
-          <label htmlFor="fileinput">
-            <i className="createFormIcon fa-solid fa-plus"></i>
-          </label>
-          <input type="file" id="fileinput" style={{display: "none"}} />
+    <div className="createPost">
+      <div className="createHeader">Create Post</div>
+      <form className="createForm">
+        <div className="createFormTitle">
           <input
             type="text"
-            placeholder="Title"
             className="createInput"
-            autoFocus={true}
-          />
+            placeholder="Title"
+            autoFocus={true} />
         </div>
-        <div className="createFormGroup">
-          <textarea
-          placeholder="Tell your story..."
-          type="text"
-          className="createInput createText"
-          ></textarea>
+        <div>
+          <ReactQuill
+            theme="snow"
+            className="createFormGroup"
+            value={value}
+            onChange={setValue}
+            modules={modules}
+            placeholder="Write something amazing..."
+            />
         </div>
-        <button className="createSubmit">Publish</button>
+        <div className="createButton">
+          <button className="createSubmit" onClick={handler}>
+            <Link className="Link" to="/">Publish</Link>
+          </button>
+        </div>
       </form>
     </div>
   )
