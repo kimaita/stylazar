@@ -1,12 +1,21 @@
-from typing import Any
 import uuid
+from typing import Any
+
 from fastapi import APIRouter, HTTPException, UploadFile
 
-from ..deps import SessionDep, CurrentUser
-from crud import crud_users
-from models.user import UserPublic, UserRegister, UpdatePassword, UserUpdate
-from models.util import Message
 from core.security import hash_password, verify_password
+from crud import crud_users
+from models.user import (
+    UpdatePassword,
+    UserPublic,
+    UserRegister,
+    UserUpdate,
+    UserProfilePic,
+)
+from models.util import Message
+from utils import process_profile_pic, valid_media_type
+
+from ..deps import CurrentUser, SessionDep
 
 router = APIRouter(prefix="/users")
 
@@ -36,7 +45,6 @@ def retrieve_profile(current_user: CurrentUser) -> Any:
     return current_user
 
 
-# TODO:Implement profile update - social links
 @router.patch("/me", response_model=UserPublic)
 def update_profile(
     session: SessionDep, user_in: UserUpdate, current_user: CurrentUser
@@ -72,12 +80,21 @@ def update_password(
     session.commit()
     return Message(message="Password updated successfully")
 
-@router.post("/me/pic", response_model='')
+
+@router.post("/me/pic", response_model=UserProfilePic)
 def update_profile_pic(
-    image: UploadFile, session: SessionDep, current_user: CurrentUser
+    image: UploadFile,
+    session: SessionDep,
+    current_user: CurrentUser,
 ) -> Any:
     """Update user's profile picture"""
-    file_name = settings
+    if valid_media_type(image):
+        profile_pic = process_profile_pic(image, user_id=current_user.id)
+        user_data = UserUpdate(picture_url=profile_pic.folder)
+        crud_users.update_user(
+            session=session, current_user=current_user, user_in=user_data
+        )
+        return profile_pic
 
 
 @router.get("/{user_id}", response_model=UserPublic)
