@@ -4,18 +4,11 @@ import uuid
 
 from sqlmodel import Session, select
 
-from core.db import pg_engine
+from core.db import pg_engine, commit_to_db
 from models.user import User, UserPublic, UserRegister, UserUpdate
 from models.visitor import Visitor
 from core.security import hash_password, verify_password
-
-
-def commit_to_db(session: Session, obj):
-    """"""
-    session.add(obj)
-    session.commit()
-    session.refresh(obj)
-    return obj
+from core.config import settings
 
 
 def log_ip_address(ip_addr: str):
@@ -95,26 +88,17 @@ def authenticate_user(session: Session, email: str, password: str) -> User | Non
     return user
 
 
-def update_user(
-    session: Session,
-    current_user: User,
-    user_in: UserUpdate,
-) -> User:
+def update_user(session: Session, current_user: User, user_in: UserUpdate) -> User:
     """Updates a user"""
-    extra_data: dict = {}
-    user_data = user_in.model_dump(exclude_unset=True)
 
-    if "interests" in user_data and current_user.interests:
-        user_data["interests"] += current_user.interests
+    update_data = user_in.model_dump(exclude_unset=True)
 
-    current_user.sqlmodel_update(user_data, update=extra_data)
-    session.add(current_user)
-    session.commit()
-    session.refresh(current_user)
-    return current_user
+    if "interests" in update_data and current_user.interests:
+        update_data["interests"] += current_user.interests
 
-    def USER_PROFILE_PIC(self, user_id: str) -> str:
-        user_folder = f"{self.PROFILE_IMAGES}/user_id"
-        full = f"{user_folder}/{user_id}-full"
-        thumbnail = f"{user_folder}/{user_id}-thmb"
-        return
+    if "social_links" in update_data and current_user.social_links:
+        update_data["social_links"].update(current_user.social_links)
+
+    current_user.sqlmodel_update(update_data)
+
+    return commit_to_db(session, current_user)
