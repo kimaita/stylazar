@@ -27,7 +27,6 @@ services:
     volumes:
       - redis_data:/data
 
-  # mongo:
   mongo:
     image: mongo:8.0
     container_name: stylazar_mongo
@@ -37,10 +36,9 @@ services:
     logging:
       options:
         max-size: 1g
-    env_file:
-      - .env
+    env_file: .env
     volumes:
-      - mongo_data:/data/db 
+      - mongo_data:/data/db
 
 volumes:
   pgdata:
