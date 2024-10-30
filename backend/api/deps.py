@@ -8,11 +8,11 @@ from fastapi.security import OAuth2PasswordBearer
 from jwt.exceptions import InvalidTokenError
 from sqlmodel import Session
 
-from crud.crud_users import get_user_by_id
-from models.util import TokenData
-from models.user import User
-from core.db import pg_engine
 from core.config import settings
+from core.db import pg_engine
+from crud.crud_users import get_user_by_id
+from models.user import User
+from models.util import TokenData
 
 
 def get_db() -> Generator[Session, None, None]:
@@ -22,15 +22,12 @@ def get_db() -> Generator[Session, None, None]:
 
 SessionDep = Annotated[Session, Depends(get_db)]
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl=f"{settings.API_V1_PREFIX}/login/access_token")
+oauth2_scheme = OAuth2PasswordBearer(
+    tokenUrl=f"{settings.API_V1_PREFIX}/login/access_token"
+)
 TokenDep = Annotated[str, Depends(oauth2_scheme)]
 
-"""
-def get_heroes_crud(
-       session: SessionDep
-) -> HeroesCRUD:
-   return HeroesCRUD(session=session)
-"""
+
 def get_current_user(session: SessionDep, token: TokenDep) -> User:
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
