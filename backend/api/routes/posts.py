@@ -1,6 +1,8 @@
 from fastapi import APIRouter
 from ..deps import SessionDep, CurrentUser
 import uuid
+from models.post import PostCreate
+from crud import crud_posts
 
 router = APIRouter(prefix="/posts")
 
@@ -24,9 +26,11 @@ def get_post_by_stub(stu: str):
 
 
 @router.post("/")
-def create_post():
+async def create_post(post: PostCreate, session: SessionDep, user: CurrentUser):
     """Upload a post"""
-    raise NotImplementedError
+
+    res = await crud_posts.create_post(post, session, user_id=user.id)
+    return res
 
 
 @router.put("/{id}")
@@ -40,10 +44,18 @@ def delete_post():
     """Update post"""
     raise NotImplementedError
 
+
+@router.post("/{id}/comment")
+def add_post_comment():
+    """Add a comment to a post"""
+    raise NotImplementedError
+
+
 @router.post("/{id}/like")
 def like_post():
     """Like a post"""
     raise NotImplementedError
+
 
 @router.post("/{id}/share")
 def share_post():
