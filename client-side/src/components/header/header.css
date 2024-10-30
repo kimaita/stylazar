@@ -1,0 +1,19 @@
+.header{
+    margin-top: 30px;
+    margin-bottom: 30px;
+}
+
+.headerTitle{
+    display: flex;
+    flex-direction: column;
+    margin-left: 120px;
+    margin-bottom: 60px;
+    font-family: "Varela", sans-serif;
+    color: black;
+}
+
+.headerTitleLarge{
+    font-size: 30px;
+    font-weight: 600;
+    position: absolute;
+}
