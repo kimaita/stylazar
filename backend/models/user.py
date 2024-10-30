@@ -2,11 +2,11 @@
 
 import uuid
 
-from pydantic import EmailStr, Json
+from pydantic import EmailStr
 from sqlalchemy.dialects.postgresql import ARRAY, JSONB
 from sqlalchemy.types import String
 from sqlmodel import AutoString, Column, Field, Relationship, SQLModel
-from datetime import datetime, timezone
+
 from .base_model import BaseModel, UpdatableModel
 
 
@@ -63,7 +63,7 @@ class UserPublic(SQLModel):
     name: str
     email: EmailStr
     bio: str | None = None
-    social_links: Json | None = None
+    social_links: dict | None = None
     picture_url: str | None = None
     interests: list[str] | None = None
 
@@ -74,7 +74,8 @@ class UserUpdate(SQLModel):
     name: str | None = None
     email: EmailStr | None = None
     bio: str | None = None
-    social_links: Json | None = None
+    picture_url: str | None = None
+    social_links: dict | None = None
     interests: list[str] | None = None
 
 
@@ -83,3 +84,10 @@ class UpdatePassword(SQLModel):
 
     current_password: str = Field(min_length=8, max_length=40)
     new_password: str = Field(min_length=8, max_length=40)
+
+
+class UserProfilePic(SQLModel):
+    """Return model for profile picture uploads"""
+    folder:str
+    original: str
+    thumbnail: str
