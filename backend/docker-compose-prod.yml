@@ -1,0 +1,72 @@
+services:
+  api:
+    # Build the image from the Dockerfile
+    build: .
+    container_name: stylazar_api
+    env_file: .env
+    ports:
+      - ${API_PORT}:8000
+    depends_on:
+      - postgres
+      - mongo
+      # - redis
+    develop:
+      # https://docs.docker.com/compose/file-watch/#compose-watch-versus-bind-mounts
+      watch:
+        # Sync the working directory with the `/app` directory in the container
+        - action: sync
+          path: .
+          target: /app
+          ignore:
+            - .venv/
+
+        # Rebuild the image on changes to the `pyproject.toml`
+        - action: rebuild
+          path: ./pyproject.toml
+
+  postgres:
+    image: postgres:16.4
+    container_name: stylazar_pg
+    restart: always
+    expose:
+      - 5432
+    env_file: .env
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER}"]
+      interval: 1s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:7
+    container_name: stylazar_rds
+    restart: always
+    env_file: .env
+    expose:
+      - 6379
+
+    command: redis-server --save 60 1 --loglevel warning
+    volumes:
+      - redis_data:/data
+
+  mongo:
+    image: mongo:8.0
+    container_name: stylazar_mongo
+    expose:
+      - 27017
+    env_file: .env
+    restart: always
+    logging:
+      options:
+        max-size: 1g
+    volumes:
+      - mongo_data:/data/db
+
+volumes:
+  pgdata:
+  redis_data:
+  mongo_data:
