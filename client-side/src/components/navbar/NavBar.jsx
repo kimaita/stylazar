@@ -1,9 +1,15 @@
 import "./navbar.css"
 import { Link } from "react-router-dom";
+import { useContext } from "react";
+import { Context } from "../context/Context";
 
 export default function NavBar() {
-    const user = true;
-    
+    const { user, dispatch } = useContext(Context);
+
+    const handleSignout = () => {
+        dispatch({ type: "SIGNOUT_SUCCESS" });
+    };
+
     return (
     <div className="nav">
         <div className="navleft">
@@ -21,7 +27,7 @@ export default function NavBar() {
                     <Link className="Link" to="/createpost">CREATE POST</Link>
                 </li>
                 <li className="navListItem">
-                    <Link className="Link" to="/setting">PROFILE</Link>
+                    <Link className="Link" to="/profile">PROFILE</Link>
                 </li>
             </ul>
         </div>
@@ -34,7 +40,7 @@ export default function NavBar() {
                             src="../../assets/"
                             alt=""
                         />
-                            <li className="navListItem" onClick={() => localStorage.clear()}>SIGNOUT</li>
+                            <li className="navListItem" onClick={handleSignout}>SIGNOUT</li>
                     </div>
                 ) : (
                     <ul className="navList">

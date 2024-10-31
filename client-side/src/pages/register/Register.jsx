@@ -10,9 +10,12 @@ export default function Register() {
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
   const navigate = useNavigate();
+  const [error, setError] = useState(false);
 
-  const handleRegister = () => {
-    axios.post("http://localhost:3000/register", {user, email, password})
+  const handleRegister = async (e) => {
+    e.preventDefault();
+    setError(false);
+    const response = await axios.post("http://localhost:8000/register", {user, email, password})
       .then(response => {
         setMessage(response.data.message);
         const { user, email, token } = response.data;
@@ -24,7 +27,9 @@ export default function Register() {
       .catch(error => {
         console.error(error);
         setMessage('Failed to register');
+        setError(true);
       });
+      console.log(response);
   };
 
   return (
@@ -36,32 +41,42 @@ export default function Register() {
       <div className="registerContainer">
         <span className="registerHeading">Register</span>
       </div>
-        <form className="registerForm">
-            <label>User</label>
-            <input
+        <form className="registerForm" onSubmit={handleRegister}>
+            <label>
+              User
+              <input
+              name="user"
               type="text" 
               className="registerInput"
               placeholder="Enter your Name"
               value={user}
               onChange={(e) => setUser(e.target.value)}
-            />
-            <label>Email</label>
-            <input
-              type="email"
+              />
+            </label>
+            <label>
+              Email 
+              <input
+              name="email"
+              type="temail"
               className="registerInput"
               placeholder="Enter your Email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-            />
-            <label>Password</label>
-            <input
+              />
+            </label>
+            <label>
+              Password 
+              <input
+              name="password"
               type="password"
               className="registerInput"
               placeholder="Enter your Password"
               value={password}
+              autocomplete="current-password"
               onChange={(e) => setPassword(e.target.value)}
-            />
-            <button onClick={handleRegister} className="registerButton">Register</button>
+              />
+            </label>
+            <button onClick={handleRegister} type="submit" className="registerButton">Register</button>
             {message && <p>{message}</p>}
         </form>
         

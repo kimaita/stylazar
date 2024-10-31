@@ -1,57 +1,58 @@
 import { Link } from "react-router-dom";
 import "./signin.css";
-import React from 'react'
+import React, { useRef } from 'react'
 import axios from 'axios';
 import { useState } from 'react';
-import { useNavigate } from "react-router-dom";
+import { useContext } from 'react';
+import { Context } from '../../components/context/Context';
+
 
 export default function Signin() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const userRef = useRef();
+  const passwordRef = useRef();
   const [message, setMessage] = useState("");
-  const navigate = useNavigate();
-  const [error, setError] = useState(false);
+  const { dispatch, isFetching } = useContext(Context);
 
-const handleSignin = async () => {
-  try {
-    const res = await axios.post("http://localhost:8000/login", { email, password });
-    setMessage(res.data.message);
-    setError(false);
-    const { user, email, token } = res.data;
-    localStorage.setItem("user", user);
-    localStorage.setItem("email", email);
-    localStorage.setItem("token", token);
-    navigate("/profile");
-  } catch (error) {
-    console.error(error);
-    setMessage('Error signing in. Invalid Credentials.');
-    setError(true);
-  }
-};
+  const handleSignin = async (e) => {
+    e.preventDefault();
+    dispatch({ type: "SIGNIN_START" });
+    try {
+      const response = await axios.post("/http://localhost:5000/api/auth/login", {
+        user: userRef.current.value,
+        password: passwordRef.current.value,
+      });
+      dispatch({ type: "SIGNIN_SUCCESS", payload: response.data });
+      window.location.replace("/");
+    } catch (error) {
+      setMessage("Wrong email or password");
+      dispatch({ type: "SIGNIN_FAILURE" });
+    }
+  };
+
   return (
     <div className="signin">
         <div className="signinWelcome">
             <h2 className="signinWelcomeTitle">Welcome Back!</h2>
         </div>
         <span className="signinHeading">SignIn</span>
-        <form className="signinForm">
-            <label>Email</label>
+        <form className="signinForm" onSubmit={handleSignin}>
+            <label>User</label>
             <input
-            type="email"
+            type="name"
             className="signinInput"
-            placeholder="Enter your Email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            placeholder="Enter your Name"
+            value={userRef}
+            ref={userRef}
             />
             <label>Password</label>
             <input
             type="password"
             className="signinInput"
             placeholder="Enter your Password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            value={passwordRef}
+            ref={passwordRef}
             />
-            <button onClick={handleSignin}className="signinButton">SignIn</button>
+            <button type="submit" className="signinButton" disabled={isFetching}>SignIn</button>
             {message && <p>{message}</p>}
         </form>
         <label className="signinlabel">

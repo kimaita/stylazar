@@ -20,7 +20,7 @@ from ..deps import CurrentUser, SessionDep
 router = APIRouter(prefix="/users")
 
 
-@router.post("/signup", response_model=UserPublic)
+@router.post("/register", response_model=UserPublic)
 def create_user(session: SessionDep, user_reg: UserRegister) -> Any:
     """Adds a new user to the user database"""
     user_exists = crud_users.get_user_by_email(

@@ -61,7 +61,7 @@
 }
 
 .registerInput{
-    width: 100%;
+    width: 80%;
     padding: 10px;
     margin: 5px;
     background-color: white;
@@ -70,7 +70,7 @@
 }
 
 .registerButton{
-    width: 100%;
+    width: 80%;
     padding: 10px;
     margin: 10px;
     border: none;

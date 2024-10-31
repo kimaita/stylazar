@@ -43,7 +43,7 @@ export default function Profile () {
           <input type='password' placeholder='Password' />
           <button className='profileSubmitButton' onClick={Link}>Update</button>
           <span className='profileDeleteButton'>Delete Account</span>
-          <span><Link className='profileLogoutButton' to='/profile'>Home</Link></span>
+          <span><Link className='profileLogoutButton' to='/'>Home</Link></span>
         </form>
       </div>
     </div>
