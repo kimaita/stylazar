@@ -12,15 +12,24 @@ import Landingpage from "./components/landingpage/landingpage";
 import ErrorPage from "./pages/errorpage/ErrorPage";
 import Profile from "./pages/profile/Profile";
 
-function App() {
+export default function App() {
   const user = true;
   return (
     <Router>
       <NavBar />
-      <Profile />
+      <Outlet />
+      <Routes>
+        <Route path="/landingpage" element={<Landingpage />} />
+        <Route path="/" element={user? <Home /> : <Register />} />
+        <Route path="/register" element={user ? <Home /> : <Register />} />
+        <Route path="/profile" element={<Profile />} />
+        <Route path="/signin" element={<Signin />} />
+        <Route path="/createpost" element={<CreatePost />} />
+        <Route path="/post" element={<Post />} />
+        <Route path="/SinglePost/:postId" element={<SinglePost />} />
+      </Routes>
       <Footer />
     </Router>
   );
 }
 
-export default App;

@@ -14,7 +14,7 @@ export default function Signin() {
 
 const handleSignin = async () => {
   try {
-    const res = await axios.post("http://localhost:3000/login", { email, password });
+    const res = await axios.post("http://localhost:8000/login", { email, password });
     setMessage(res.data.message);
     setError(false);
     const { user, email, token } = res.data;

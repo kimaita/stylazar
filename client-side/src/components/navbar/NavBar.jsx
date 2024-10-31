@@ -3,7 +3,8 @@ import { Link } from "react-router-dom";
 
 export default function NavBar() {
     const user = true;
-  return (
+    
+    return (
     <div className="nav">
         <div className="navleft">
             <Link className="Link" to="/landingpage">STYLAZAR</Link>
@@ -33,9 +34,7 @@ export default function NavBar() {
                             src="../../assets/"
                             alt=""
                         />
-                            <li className="navListItem">
-                                {user && "SIGNOUT"}
-                            </li>
+                            <li className="navListItem" onClick={() => localStorage.clear()}>SIGNOUT</li>
                     </div>
                 ) : (
                     <ul className="navList">
