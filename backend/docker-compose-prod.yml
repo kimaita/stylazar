@@ -45,7 +45,7 @@ services:
     image: redis:7
     container_name: stylazar_rds
     restart: always
-    env_file: .env
+    env_file: .env.prod
     expose:
       - 6379
 
