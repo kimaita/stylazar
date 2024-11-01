@@ -1,13 +1,18 @@
 """User class implementations"""
 
 import uuid
-
+from typing import TYPE_CHECKING
 from pydantic import EmailStr
 from sqlalchemy.dialects.postgresql import ARRAY, JSONB
 from sqlalchemy.types import String
 from sqlmodel import AutoString, Column, Field, Relationship, SQLModel
 
 from .base_model import BaseModel, UpdatableModel
+
+if TYPE_CHECKING:
+    from .post import Post, PostReaction
+    from .comment import Comment
+    from .visitor import Visitor
 
 
 class UserIp(SQLModel, table=True):
@@ -46,6 +51,7 @@ class User(BaseModel, UpdatableModel, table=True):
 
     posts: list["Post"] = Relationship(back_populates="author")
     comments: list["Comment"] = Relationship(back_populates="user")
+    post_reactions: list["PostReaction"] = Relationship(back_populates="user")
 
 
 class UserRegister(SQLModel):
@@ -61,7 +67,6 @@ class UserPublic(SQLModel):
 
     id: uuid.UUID
     name: str
-    email: EmailStr
     bio: str | None = None
     social_links: dict | None = None
     picture_url: str | None = None
@@ -84,10 +89,3 @@ class UpdatePassword(SQLModel):
 
     current_password: str = Field(min_length=8, max_length=40)
     new_password: str = Field(min_length=8, max_length=40)
-
-
-class UserProfilePic(SQLModel):
-    """Return model for profile picture uploads"""
-    folder:str
-    original: str
-    thumbnail: str

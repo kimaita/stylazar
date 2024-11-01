@@ -1,23 +1,24 @@
 import uuid
 from typing import Any
 
-from fastapi import APIRouter, HTTPException, UploadFile
-
+from core.config import settings
 from core.security import hash_password, verify_password
+from core.utils import ImageUpload, UploadedImage
 from crud import crud_users
+from fastapi import APIRouter, HTTPException, UploadFile
 from models.user import (
     UpdatePassword,
     UserPublic,
     UserRegister,
     UserUpdate,
-    UserProfilePic,
 )
 from models.util import Message
-from utils import process_profile_pic, valid_media_type
+from models.post import Post
 
 from ..deps import CurrentUser, SessionDep
+from sqlmodel import select
 
-router = APIRouter(prefix="/users")
+router = APIRouter(prefix="/users", tags=['users'])
 
 
 @router.post("/register", response_model=UserPublic)
@@ -81,15 +82,18 @@ def update_password(
     return Message(message="Password updated successfully")
 
 
-@router.post("/me/pic", response_model=UserProfilePic)
+@router.post("/me/pic", response_model=UploadedImage)
 def update_profile_pic(
     image: UploadFile,
     session: SessionDep,
     current_user: CurrentUser,
 ) -> Any:
     """Update user's profile picture"""
-    if valid_media_type(image):
-        profile_pic = process_profile_pic(image, user_id=current_user.id)
+    if ImageUpload.is_image(image):
+        user_folder = f"{settings.PROFILE_IMAGES}/{current_user.id}"
+
+        with ImageUpload(image) as img:
+            profile_pic = img.upload(user_folder, current_user.id)
         user_data = UserUpdate(picture_url=profile_pic.folder)
         crud_users.update_user(
             session=session, current_user=current_user, user_in=user_data
@@ -112,11 +116,19 @@ def retrieve_user(session: SessionDep, user_id: uuid.UUID) -> Any:
 #  TODO: Implement user posts retrieval
 @router.get(
     "/{user_id}/posts",
-    response_model="",
+    # response_model="",
 )
-def retrieve_user_posts():
+def retrieve_user_posts(user_id: uuid.UUID, session: SessionDep):
     """Get posts by a user"""
-    raise NotImplementedError
+    user = crud_users.get_user_by_id(session, user_id)
+    if not user:
+        raise HTTPException(
+            status_code=404,
+            detail="No user found",
+        )
+    statement = select(Post).where(Post.user_id == user.id)
+    res  = session.exec(statement).all()
+    return res
 
 
 # TODO: Implement user drafts retrieval
