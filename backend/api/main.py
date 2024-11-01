@@ -16,5 +16,5 @@ api_router.include_router(posts.router)
 async def status() -> dict:
     """Returns the API status"""
     return {
-        "status": 'OK',
+        "status": "OK",
     }
