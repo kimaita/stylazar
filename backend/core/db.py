@@ -35,11 +35,11 @@ async def mongo_lifespan(app: FastAPI):  # type: ignore
         info("Connected to database cluster.")
 
     await init_beanie(database=app.db, document_models=[PostDocument])  # type: ignore[arg-type,attr-defined]
-    info("Startup complete")
+
     yield
 
     app.mongodb_client.close()
-    info("Shutdown complete")
+
 
 def commit_to_db(session: Session, obj):
     """"""
