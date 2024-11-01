@@ -3,9 +3,9 @@ from typing import Annotated, Any
 
 from core import exceptions
 from crud import crud_comments, crud_posts
-from fastapi import APIRouter, Form, HTTPException, Request, UploadFile, status
+from fastapi import APIRouter, Form, Query, Request, UploadFile, status
 from models.comment import CommentCreate, CommentPublic
-from models.post import PostCreate, PostPublic, PostPublicWithAuthor, ReactionBase
+from models.post import PostCreate, PostPublic, PostUpdate, ReactionBase, PostPublicWithAuthor
 from models.util import Message
 
 from ..deps import CurrentUser, SessionDep
@@ -13,7 +13,7 @@ from ..deps import CurrentUser, SessionDep
 router = APIRouter(prefix="/posts", tags=["posts"])
 
 
-@router.post("/", response_model=PostPublic)
+@router.post("/", status_code=status.HTTP_201_CREATED, response_model=PostPublic)
 async def create_post(
     session: SessionDep,
     user: CurrentUser,
@@ -30,10 +30,14 @@ async def create_post(
     return res
 
 
-@router.get("/")
-def get_posts_index(session: SessionDep):
+@router.get("/", response_model=list[PostPublicWithAuthor])
+async def get_posts_index(
+    session: SessionDep,
+    offset: int = 0,
+    limit: Annotated[int, Query(le=30)] = 20,
+):
     """Post list for the homepage"""
-    raise NotImplementedError
+    return await crud_posts.generate_feed(offset, limit, session)
 
 
 @router.get("/{id}", response_model=PostPublic)
@@ -52,8 +56,11 @@ async def get_post(id: str, session: SessionDep) -> Any:
 
 
 @router.patch("/{id}")
-def update_post(id: uuid.UUID, user: CurrentUser, session: SessionDep):
+def update_post(
+    id: uuid.UUID, updates: PostUpdate, user: CurrentUser, session: SessionDep
+):
     """Update post"""
+
     raise NotImplementedError
 
 
@@ -80,7 +87,7 @@ def add_post_comment(
 @router.post(
     "/{id}/like", status_code=status.HTTP_201_CREATED, response_model=ReactionBase
 )
-async def like_post(
+def like_post(
     id: uuid.UUID,
     reaction_in: ReactionBase,
     current_user: CurrentUser,

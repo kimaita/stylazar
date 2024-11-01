@@ -47,20 +47,16 @@ class PostUpdate(PostCreate):
 
     title: str | None = None
     body: str | None = None
+    excerpt: str | None = None
+    byline: str | None = None
     is_public: bool | None = None
     is_published: bool | None = None
-
-
-class PostVersion(pydantic.BaseModel):
-    """"""
-
-    version: int
-    content: str
-    published_at: datetime
+    tags: list[str] | None = None
 
 
 class PostPublic(SQLModel):
     id: uuid.UUID
+    user_id: uuid.UUID
     title: str
     body: str
     excerpt: str
@@ -71,18 +67,31 @@ class PostPublic(SQLModel):
 
 
 class PostPublicWithAuthor(PostPublic):
-    author: UserPublic
+    """"""
+
+    # name: str
 
 
-class PostDocument(Document):
-    """MongoDB document schema for a post"""
+class PostDocumentBase(pydantic.BaseModel):
+    """"""
 
     body: str | None
     byline: str | None = None
     excerpt: str | None = None
     tags: list[str] | None = None
-    published_at: datetime | None = None
     banner_image: str | None = None
+    published_at: datetime | None = None
+
+
+class PostVersion(PostDocumentBase):
+    """"""
+
+    version: int
+
+
+class PostDocument(Document, PostDocumentBase):
+    """MongoDB document schema for a post"""
+
     # metadata:{word_count:int, read_time:timedelta?}
     version_history: list[PostVersion] | None = None
 

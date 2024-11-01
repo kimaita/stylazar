@@ -2,8 +2,7 @@
 
 import re
 import secrets
-import logging
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 
 import lxml.html
 from beanie import PydanticObjectId
@@ -14,6 +13,7 @@ from models.post import (
     Post,
     PostCreate,
     PostDocument,
+    PostDocumentBase,
     PostPublic,
     PostReaction,
     ReactionBase,
@@ -88,8 +88,16 @@ async def create_post(post: PostCreate, session, banner_image):
             with ImageUpload(banner_image) as img:
                 banner_pic = img.upload(post_folder, insPost.id)
             await post_document.set({PostDocument.banner_image: banner_pic.folder})
+    post_document_public = PostDocumentBase(**post_document.model_dump())
 
-    return {**insPost.model_dump(), **post_document.model_dump(exclude={'id'})}
+    return {**insPost.model_dump(), **post_document_public.model_dump()}
+
+
+async def get_mongo_doc(mongo_id: str) -> PostDocumentBase | None:
+    """"""
+    post_doc = await PostDocument.get(PydanticObjectId(mongo_id))
+    if post_doc:
+        return PostDocumentBase(**post_doc.model_dump())
 
 
 async def get_post_by_id(id: uuid.UUID, session: Session) -> PostPublic | None:
@@ -98,14 +106,9 @@ async def get_post_by_id(id: uuid.UUID, session: Session) -> PostPublic | None:
     if not post:
         return
 
-    post_document: PostDocument = await PostDocument.get(
-        PydanticObjectId(post.mongo_id)
-    )
+    post_document = await get_mongo_doc(post.mongo_id)
 
-    post_public = PostPublic(
-        **post.model_dump(), **post_document.model_dump(exclude={"id"})
-    )
-    return post_public
+    return PostPublic(**post.model_dump(), **post_document.model_dump())
 
 
 async def get_post_by_slug(slug: str, session: Session):
@@ -126,8 +129,23 @@ def delete_post():
     """"""
 
 
-def get_posts_index():
+async def generate_feed(page: int, page_size: int, session: Session):
     """"""
+    recency = datetime.now(timezone.utc) - timedelta(weeks=3)
+    statement = (
+        select(Post)
+        .where(
+            Post.is_published,
+            Post.is_public,
+            Post.updated_at > recency,
+        )
+        .order_by(Post.updated_at)
+        .offset(page * page_size)
+        .limit(page_size)
+    )
+    posts = session.exec(statement)
+    feed = [await get_post_by_id(post.id, session) for post in posts]
+    return feed
 
 
 def post_react(
