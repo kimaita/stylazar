@@ -19,7 +19,7 @@ It has simple blog application features like authentication, posting contents wh
 ## Project Structure
 
 ```plaintext
-FARM-Blog-App/
+stylazar-blog-website/
 ├── backend/
 │   ├── api                 # FastAPI app with blog routes
 │   ├── core                # MongoDB connection setup
