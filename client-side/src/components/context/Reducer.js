@@ -9,6 +9,7 @@ const SigninReducer = (state, action) => {
         case "SIGNIN_SUCCESS":
             return {
                 user: action.payload,
+                access_token:action.payload.access_token,
                 isFetching: false,
                 error: false,
             };

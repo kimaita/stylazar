@@ -15,13 +15,13 @@ export default function Register() {
   const handleRegister = async (e) => {
     e.preventDefault();
     setError(false);
-    const response = await axios.post("http://localhost:8000/register", {user, email, password})
+    const response = await axios.post("http://localhost:8000/api/v1/users/register", {name:user, email, password})
       .then(response => {
         setMessage(response.data.message);
         const { user, email, token } = response.data;
-        localStorage.setItem("user", user);
-        localStorage.setItem("email", email);
-        localStorage.setItem("token", token);
+        // localStorage.setItem("user", user);
+        // localStorage.setItem("email", email);
+        // localStorage.setItem("token", token);
         navigate("/signin");
       })
       .catch(error => {
