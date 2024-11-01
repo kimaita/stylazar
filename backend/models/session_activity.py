@@ -1,10 +1,7 @@
 import enum
-import uuid
 from datetime import datetime
 
-from sqlmodel import TIMESTAMP, Column, Enum, Field, Relationship, SQLModel
-
-from .session import Session
+from sqlmodel import TIMESTAMP, Column, Enum, Field, SQLModel
 
 
 class HttpMethod(str, enum.Enum):
@@ -22,14 +19,18 @@ class SessionActivity(SQLModel, table=True):
 
     __tablename__ = "session_activity"
 
-    session_id: uuid.UUID = Field(
-        foreign_key="sessions.id",
-        primary_key=True,
-    )
+    ip_address: str = Field(index=True, primary_key=True)
     performed_at: datetime = Field(
         sa_type=TIMESTAMP(timezone=True),
     )
     route: str
     method: HttpMethod = Field(sa_column=Column(Enum(HttpMethod)))
     response_code: int | None = None
-    session: Session = Relationship(back_populates="activity")
+
+
+class ActivityCreate(SessionActivity):
+    pass
+
+
+class ActivityUpdate(SQLModel):
+    response_code: int | None = None
