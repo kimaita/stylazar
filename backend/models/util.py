@@ -14,6 +14,8 @@ class TokenData(SQLModel):
 
     user_id: UUID | None = None
 
+
 class Message(SQLModel):
     """Generic response message"""
-    message:str
+
+    message: str

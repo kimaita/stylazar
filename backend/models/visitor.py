@@ -3,6 +3,7 @@ from sqlmodel import Field, Relationship
 from .base_model import BaseModel, UpdatableModel
 from .user import User, UserIp
 
+
 class Visitor(BaseModel, UpdatableModel, table=True):
     """Database visitors table"""
 
