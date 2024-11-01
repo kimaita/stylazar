@@ -10,7 +10,9 @@ from PIL import Image
 from pydantic import BaseModel
 
 from core.config import settings
+from dotenv import load_dotenv
 
+load_dotenv()
 
 class ImageUpload:
     """"""
