@@ -1,15 +1,29 @@
 """"""
 
 import re
+import secrets
+import logging
 from datetime import datetime, timezone
 
 import lxml.html
+from beanie import PydanticObjectId
+from core.config import settings
 from core.db import commit_to_db
+from core.utils import ImageUpload
+from models.post import (
+    Post,
+    PostCreate,
+    PostDocument,
+    PostPublic,
+    PostReaction,
+    ReactionBase,
+)
+from sqlmodel import Session, select
+from core import exceptions
+import uuid
 
-from models.post import Post, PostCreate, PostDocument
 
-
-def generate_excerpt(post: str, max_length: int = 250):
+def generate_excerpt(post: str, max_length: int = 512):
     """"""
     content = lxml.html.fromstring(post).text_content()
     if len(content) <= max_length:
@@ -28,16 +42,25 @@ def generate_excerpt(post: str, max_length: int = 250):
     return excerpt + "..."
 
 
-def generate_slug(title):
+def generate_slug(title, session):
     """"""
     ptn_nonalpha = re.compile(r"[\W_]")
     ptn_punct = re.compile(r"[.,!?:;\'\"]")
     stripped = ptn_punct.sub("", title.rstrip().lower())
     slug = ptn_nonalpha.sub("-", stripped)
-    return slug
+    test_slug = slug
+    while get_post_by_slug(test_slug, session):
+        test_slug = f"{slug}-{secrets.token_hex(4)}"
+
+    return slug if (slug == test_slug) else test_slug
 
 
-async def create_post(post: PostCreate, session, user_id):
+def post_exists(id: uuid.UUID, session: Session) -> Post | None:
+    """"""
+    return session.get(Post, id)
+
+
+async def create_post(post: PostCreate, session, banner_image):
     """"""
     post_document = PostDocument(body=post.body)
 
@@ -48,28 +71,58 @@ async def create_post(post: PostCreate, session, user_id):
         published_at = datetime.now(timezone.utc)
         post_document.published_at = published_at
 
-    inserted = await post_document.insert()
-    mongo_id = str(inserted.id)
+    await post_document.insert()
+    slug = generate_slug(post.title, session)
     update_data = {
-        "user_id": user_id,
-        "slug": generate_slug(post.title),
+        "slug": slug,
         "is_public": post.is_published,
-        "mongo_id": mongo_id,
+        "mongo_id": str(post_document.id),
     }
     db_post = Post.model_validate(post, update=update_data)
     insPost = commit_to_db(session, db_post)
-    return insPost
+
+    if banner_image:
+        if ImageUpload.is_image(banner_image):
+            post_folder = f"{settings.POST_IMAGES}/{insPost.id}"
+
+            with ImageUpload(banner_image) as img:
+                banner_pic = img.upload(post_folder, insPost.id)
+            await post_document.set({PostDocument.banner_image: banner_pic.folder})
+
+    return {**insPost.model_dump(), **post_document.model_dump()}
 
 
-def load_post():
+async def get_post_by_id(id: uuid.UUID, session: Session) -> PostPublic | None:
     """"""
+    post = session.get(Post, id)
+    if not post:
+        return
+
+    post_document: PostDocument = await PostDocument.get(
+        PydanticObjectId(post.mongo_id)
+    )
+
+    post_public = PostPublic(
+        **post.model_dump(), **post_document.model_dump(exclude={"id"})
+    )
+    return post_public
+
+
+async def get_post_by_slug(slug: str, session: Session):
+    """"""
+    statement = select(Post).where(Post.slug == slug)
+    try:
+        post = session.exec(statement).one()
+        return await get_post_by_id(post.id, session)
+    except Exception:
+        return None
 
 
 def update_post():
     """"""
 
 
-def retrieve_post():
+def delete_post():
     """"""
 
 
@@ -77,9 +130,20 @@ def get_posts_index():
     """"""
 
 
-def get_post_by_id():
+def post_react(
+    post_id: uuid.UUID, user_id: uuid.UUID, reaction: ReactionBase, session: Session
+):
     """"""
+    statement = select(PostReaction).where(
+        PostReaction.user_id == user_id, PostReaction.post_id == post_id
+    )
+    try:
+        post_reaction = session.exec(statement).one()
+        upvoted = not post_reaction.upvoted
+        post_reaction.upvoted = upvoted
+    except Exception:
+        post_reaction = PostReaction.model_validate(
+            reaction, update={"post_id": post_id, "user_id": user_id}
+        )
 
-
-def get_post_by_stub():
-    """"""
+    return commit_to_db(session, post_reaction)
