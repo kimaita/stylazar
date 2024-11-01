@@ -1,11 +1,11 @@
 import axios from "axios";
 import "./createpost.css";
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import ReactQuill from "react-quill";
 import 'react-quill/dist/quill.snow.css'; // Import styles
 import { Link, useLinkClickHandler } from "react-router-dom";
-import { useContext } from "react";
-import { Context } from "../../components/context/Context";
+import { set } from "mongoose";
+
 
 const modules = {
   toolbar: [
@@ -22,38 +22,25 @@ const modules = {
 };
 
 export default function CreatePost() {
-  const { user } = useContext(Context);
+  const [file, setFile] = useState(null);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
-  const [file, setFile] = useState(null);
+  const [author, setAuthor] = useState("");
 
-  const Submithandler = async (e) => {
+  const handleFormSubmit = async (e) => {
     e.preventDefault();
-    const newPost = {
-      username: user.username,
-      title,
-      description,
-    };
-    if(file) {
-      const filename = Date.now() + file.name;
-      const formData = new FormData();
-      formData.append("name", filename);
-      formData.append("file", file);
-      newPost.pic = filename;
-      try {
-        const response = await axios.post("/api/upload", formData);
-        window.location.replace("/post/" + response.data._id);
-      } catch (err) {}
-    }
-    try {
-      axios.post("/api/posts", newPost);
-    } catch (err) {}
+    const newPost = { file, title, description, author };
+    await axios.post("http://localhost:8000/v1/api/posts", newPost);
+    setFile(null);
+    setTitle("");
+    setDescription("");
+    setAuthor("");
   };
 
   return (
     <div className="createPost">
       <div className="createHeader">Create Post</div>
-      <form className="createForm" onSubmit={Submithandler}>
+      <form className="createForm" onSubmit={handleFormSubmit}>
         <div className="createFormTitle">
           {file && (
             <img
@@ -74,6 +61,7 @@ export default function CreatePost() {
             className="createInput"
             placeholder="Title"
             autoFocus={true}
+            value={title}
             onChange={(e) => setTitle(e.target.value)}
             />
         </div>
@@ -84,7 +72,7 @@ export default function CreatePost() {
             value={description}
             modules={modules}
             placeholder="Write something amazing..."
-            onChange={setDescription}
+            onChange={(e) => setDescription(e.target.value)}
             />
         </div>
         <div className="createButton">

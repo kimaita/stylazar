@@ -11,6 +11,29 @@ export default function Profile () {
   const [file, setFile] = useState(null);
   const navigate = useNavigate();
 
+  const handleProfileUpdate = async (e) => {
+    e.preventDefault();
+    const updatedUser = {
+      userId: user._id,
+      username: user,
+      email: email,
+    };
+    if (file) {
+      try {
+        const data = new FormData();
+        const filename = Date.now() + file.name;
+        data.append("name", filename);
+        data.append("file", file);
+        updatedUser.profilePic = filename;
+        await axios.post("http://localhost:8000/api/v1/upload", data);
+      } catch (err) {}
+    };
+    try {
+      await axios.put(`http://localhost:8000/api/v1/user?${user._id}`, updatedUser);
+      navigate("/");
+    } catch (err) {}
+  }
+
   return (
     <div className='profile'> 
       <div className="profileLeft">
@@ -19,7 +42,11 @@ export default function Profile () {
       <div className="profileCenter">
         <div className="profileInfo">
           <h4 className="profileInfoTitle">Profile Details</h4>
-          <img src={file ? file : "https://www.kindpng.com/picc/m/78-785827_user-profile-avatar-login-account .png"} alt="" className="profileInfoImg" />
+          <img 
+            src={file ? file : "https://www.kindpng.com/picc/m/78-785827_user-profile-avatar-login-account .png"}
+            alt=""
+            className="profileInfoImg"
+          />
           <span className="profileInfoName">{user}</span>
           <span className="profileInfoEmail">{email}</span>
         </div>
@@ -41,7 +68,7 @@ export default function Profile () {
             />
           <label>Password</label>
           <input type='password' placeholder='Password' />
-          <button className='profileSubmitButton' onClick={Link}>Update</button>
+          <button className='profileSubmitButton' onClick={handleProfileUpdate}>Update</button>
           <span className='profileDeleteButton'>Delete Account</span>
           <span><Link className='profileLogoutButton' to='/'>Home</Link></span>
         </form>
