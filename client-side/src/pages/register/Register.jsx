@@ -15,7 +15,7 @@ export default function Register() {
   const handleRegister = async (e) => {
     e.preventDefault();
     setError(false);
-    const response = await axios.post("http://localhost:8000/register", {user, email, password})
+    const response = await axios.post("http://localhost:8000/v1/user/register", {user, email, password})
       .then(response => {
         setMessage(response.data.message);
         const { user, email, token } = response.data;
