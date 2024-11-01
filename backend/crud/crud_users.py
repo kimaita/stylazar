@@ -8,7 +8,6 @@ from core.db import pg_engine, commit_to_db
 from models.user import User, UserPublic, UserRegister, UserUpdate
 from models.visitor import Visitor
 from core.security import hash_password, verify_password
-from core.config import settings
 
 
 def log_ip_address(ip_addr: str):
@@ -80,7 +79,6 @@ def get_user_by_email(session: Session, email: str) -> User | None:
 def authenticate_user(session: Session, email: str, password: str) -> User | None:
     """"""
     user = get_user_by_email(session, email)
-    print(f"authenticated {email}")
     if not user:
         return
     if not verify_password(password, user.password):
