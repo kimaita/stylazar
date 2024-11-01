@@ -1,10 +1,10 @@
 """"""
 
+import os
+
 from pydantic import MongoDsn, PostgresDsn, computed_field
 from pydantic_core import MultiHostUrl
 from pydantic_settings import BaseSettings, SettingsConfigDict
-
-from botocore.config import Config
 
 
 class Settings(BaseSettings):
@@ -37,8 +37,9 @@ class Settings(BaseSettings):
 
     SECRET_KEY: str
     ALGORITHM: str
-    DEFAULT_TOKEN_EXPIRE_MINUTES: int = 60 * 2  # 2 Hours
-    USER_TOKEN_EXPIRE_MINUTES: int = 60 * 24  # 1 Day
+    TOKEN_EXPIRY_MINUTES: int = 30
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 60
+    REFRESH_TOKEN_EXPIRE_DAYS: int = 30
 
     @computed_field  # type: ignore[prop-decorator]
     @property
@@ -69,6 +70,10 @@ class Settings(BaseSettings):
     PROFILE_IMAGES: str = f"{STORAGE_IMAGES}/profiles"
     POST_IMAGES: str = f"{STORAGE_IMAGES}/posts"
     DEFAULT_POST_IMAGES: str = f"{POST_IMAGES}/defaults"
+
+    s3_path: str = "https://{bucket}.s3.{region}.amazonaws.com/".format(
+        bucket=BUCKET_NAME, region=os.getenv("AWS_DEFAULT_REGION")
+    )
 
 
 settings = Settings()
