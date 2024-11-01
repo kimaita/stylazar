@@ -21,29 +21,23 @@ CREATE TABLE IF NOT EXISTS user_ips (
     visitor_id UUID REFERENCES visitors,
     PRIMARY KEY(user_id, visitor_id)
 );
-CREATE TABLE IF NOT EXISTS sessions (
-    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-    visitor_id UUID REFERENCES visitors,
-    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
-    destroyed_at TIMESTAMPTZ
-);
 CREATE TYPE http_method AS ENUM('DELETE', 'GET', 'PATCH', 'POST', 'PUT');
 CREATE TABLE IF NOT EXISTS session_activity (
-    session_id UUID REFERENCES sessions,
+    ip_address VARCHAR(15),
     performed_at TIMESTAMPTZ NOT NULL,
     route VARCHAR NOT NULL,
     method HTTP_METHOD NOT NULL,
-    response_code INT, 
-    PRIMARY KEY (session_id, performed_at)
+    response_code INT,
+    PRIMARY KEY (ip_address, performed_at)
 );
 CREATE TABLE IF NOT EXISTS posts (
     id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
     user_id UUID REFERENCES users,
     created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
     mongo_id VARCHAR NOT NULL UNIQUE,
-    title VARCHAR(150) NOT NULL,
-    slug VARCHAR(100) UNIQUE NOT NULL,
-    is_public BOOLEAN DEFAULT TRUE,
+    title VARCHAR(128) NOT NULL,
+    slug VARCHAR(256) UNIQUE NOT NULL,
+    is_public BOOLEAN DEFAULT FALSE,
     is_published BOOLEAN DEFAULT FALSE,
     updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
 );
@@ -67,9 +61,10 @@ CREATE TABLE IF NOT EXISTS comments (
 );
 CREATE TABLE IF NOT EXISTS post_reaction (
     post_id UUID REFERENCES posts,
-    visitor_id UUID REFERENCES visitors,
-    upvoted BOOLEAN DEFAULT TRUE, -- like vs dislike
+    user_id UUID REFERENCES users,
+    upvoted BOOLEAN DEFAULT TRUE,
+    -- like vs dislike
     created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
-    PRIMARY KEY(post_id, visitor_id)
+    PRIMARY KEY(post_id, user_id)
 );
