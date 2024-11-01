@@ -5,7 +5,7 @@ from core.config import settings
 from core.security import hash_password, verify_password
 from core.utils import ImageUpload, UploadedImage
 from crud import crud_users
-from fastapi import APIRouter, HTTPException, UploadFile
+from fastapi import APIRouter, HTTPException, UploadFile,status
 from models.user import (
     UpdatePassword,
     UserPublic,
@@ -21,7 +21,7 @@ from sqlmodel import select
 router = APIRouter(prefix="/users", tags=['users'])
 
 
-@router.post("/register", response_model=UserPublic)
+@router.post("/register", status_code=status.HTTP_201_CREATED, response_model=UserPublic)
 def create_user(session: SessionDep, user_reg: UserRegister) -> Any:
     """Adds a new user to the user database"""
     user_exists = crud_users.get_user_by_email(

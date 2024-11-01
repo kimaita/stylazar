@@ -42,14 +42,14 @@ def generate_excerpt(post: str, max_length: int = 512):
     return excerpt + "..."
 
 
-def generate_slug(title, session):
+async def generate_slug(title, session):
     """"""
     ptn_nonalpha = re.compile(r"[\W_]")
     ptn_punct = re.compile(r"[.,!?:;\'\"]")
     stripped = ptn_punct.sub("", title.rstrip().lower())
     slug = ptn_nonalpha.sub("-", stripped)
     test_slug = slug
-    while get_post_by_slug(test_slug, session):
+    while await get_post_by_slug(test_slug, session):
         test_slug = f"{slug}-{secrets.token_hex(4)}"
 
     return slug if (slug == test_slug) else test_slug
@@ -72,7 +72,7 @@ async def create_post(post: PostCreate, session, banner_image):
         post_document.published_at = published_at
 
     await post_document.insert()
-    slug = generate_slug(post.title, session)
+    slug = await generate_slug(post.title, session)
     update_data = {
         "slug": slug,
         "is_public": post.is_published,
@@ -89,7 +89,7 @@ async def create_post(post: PostCreate, session, banner_image):
                 banner_pic = img.upload(post_folder, insPost.id)
             await post_document.set({PostDocument.banner_image: banner_pic.folder})
 
-    return {**insPost.model_dump(), **post_document.model_dump()}
+    return {**insPost.model_dump(), **post_document.model_dump(exclude={'id'})}
 
 
 async def get_post_by_id(id: uuid.UUID, session: Session) -> PostPublic | None:
