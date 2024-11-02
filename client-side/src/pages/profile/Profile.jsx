@@ -25,13 +25,23 @@ export default function Profile () {
         data.append("name", filename);
         data.append("file", file);
         updatedUser.profilePic = filename;
-        await axios.post("http://localhost:8000/api/v1/upload", data);
+        await axios.post("http://localhost:8000/api/v1/users/me/pic", data);
       } catch (err) {}
     };
     try {
-      await axios.put(`http://localhost:8000/api/v1/user?${user._id}`, updatedUser);
+      const response = await axios.patch(
+        `http://localhost:8000/api/v1/users/me`, 
+        updatedUser,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        }
+      );
       navigate("/");
-    } catch (err) {}
+    } catch (err) {
+      console.log('Error updating profile');
+    }
   }
 
   return (
@@ -46,13 +56,14 @@ export default function Profile () {
             src={file ? file : "https://www.kindpng.com/picc/m/78-785827_user-profile-avatar-login-account .png"}
             alt=""
             className="profileInfoImg"
+            onChange={(e) => setFile(e.target.files[0])}
           />
           <span className="profileInfoName">{user}</span>
           <span className="profileInfoEmail">{email}</span>
         </div>
       </div>
       <div className="profileRight">
-        <form className='profileForm'>
+        <form className='profileForm' onClick={handleProfileUpdate}>
           <span className='profileFormTitle'>Account Details</span>
           <label>Username</label>
           <input
@@ -68,7 +79,7 @@ export default function Profile () {
             />
           <label>Password</label>
           <input type='password' placeholder='Password' />
-          <button className='profileSubmitButton' onClick={handleProfileUpdate}>Update</button>
+          <button className='profileSubmitButton'>Update</button>
           <span className='profileDeleteButton'>Delete Account</span>
           <span><Link className='profileLogoutButton' to='/'>Home</Link></span>
         </form>

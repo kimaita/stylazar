@@ -7,6 +7,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from middleware.request_logging import RequestLoggingMiddleware
 
+origins = [ "http://localhost", "http://localhost:3000", "http://localhost:8000" ]
 
 app = FastAPI(
     lifespan=mongo_lifespan,
@@ -16,7 +17,7 @@ app = FastAPI(
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=["origins"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
