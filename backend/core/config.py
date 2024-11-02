@@ -9,6 +9,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+
 class Settings(BaseSettings):
     """"""
 
@@ -36,6 +37,8 @@ class Settings(BaseSettings):
     API_PORT: int
 
     PROJECT_NAME: str
+
+    DEBUG: bool
 
     SECRET_KEY: str
     ALGORITHM: str

@@ -15,7 +15,7 @@ from models.comment import Comment
 
 pg_engine = create_engine(
     url=str(settings.PG_DATABASE_URI),
-    echo=True,
+    echo=settings.DEBUG,
 )
 
 
