@@ -1,13 +1,8 @@
 """"""
 
-import os
-
 from pydantic import MongoDsn, PostgresDsn, computed_field
 from pydantic_core import MultiHostUrl
 from pydantic_settings import BaseSettings, SettingsConfigDict
-from dotenv import load_dotenv
-
-load_dotenv()
 
 
 class Settings(BaseSettings):
@@ -75,10 +70,6 @@ class Settings(BaseSettings):
     PROFILE_IMAGES: str = f"{STORAGE_IMAGES}/profiles"
     POST_IMAGES: str = f"{STORAGE_IMAGES}/posts"
     DEFAULT_POST_IMAGES: str = f"{POST_IMAGES}/defaults"
-
-    s3_path: str = "https://{bucket}.s3.{region}.amazonaws.com/".format(
-        bucket=BUCKET_NAME, region=os.getenv("AWS_DEFAULT_REGION")
-    )
 
 
 settings = Settings()

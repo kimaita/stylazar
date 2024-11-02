@@ -102,13 +102,13 @@ class ImageUpload:
         full_img = f"{folder}/{id}-full.jpg"
         thumbnail = f"{folder}/{id}-thmb.jpg"
 
-        upload_to_s3(self.image, full_img)
-        upload_to_s3(self.thumbnail, thumbnail)
+        original_path = upload_to_s3(self.image, full_img)
+        thumbnail_path = upload_to_s3(self.thumbnail, thumbnail)
 
         return UploadedImage(
             folder=settings.s3_path + folder,
-            original=settings.s3_path + full_img,
-            thumbnail=settings.s3_path + thumbnail,
+            original=original_path,
+            thumbnail=thumbnail_path,
         )
 
     @classmethod
@@ -144,10 +144,15 @@ def upload_to_s3(file_path, object_name: str):
 
     s3_client = boto3.client("s3")
 
+    s3_path: str = "https://{bucket}.s3.{region}.amazonaws.com/".format(
+        bucket=settings.BUCKET_NAME, region=os.getenv("AWS_DEFAULT_REGION")
+    )
+
     try:
         s3_client.upload_file(file_path, settings.BUCKET_NAME, object_name)
+
     except ClientError as e:
         logging.error(e)
         return False
 
-    return True
+    return s3_path + object_name
