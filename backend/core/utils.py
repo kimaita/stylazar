@@ -5,14 +5,16 @@ import tempfile
 import boto3
 import filetype
 from botocore.exceptions import ClientError
-from fastapi import HTTPException, UploadFile, status
+from dotenv import load_dotenv
+from fastapi import UploadFile
 from PIL import Image
 from pydantic import BaseModel
 
 from core.config import settings
-from dotenv import load_dotenv
+from core.exceptions import exceeded_size, invalid_img_file
 
 load_dotenv()
+
 
 class ImageUpload:
     """"""
@@ -34,70 +36,65 @@ class ImageUpload:
     _temp_folder = "/tmp/stylazar"
     os.makedirs(_temp_folder, exist_ok=True)
 
-    invalid_img_file = HTTPException(
-        status_code=status.HTTP_415_UNSUPPORTED_MEDIA_TYPE,
-        detail="Unsupported file type",
-    )
-
-    exceeded_size = HTTPException(
-        status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
-        detail="The image file is too large",
-    )
-
     __MAX_IMAGE_SIZE: int = 2_097_152
     __THUMBNAIL_SIZE: tuple[int, int] = (256, 256)
 
     def __init__(self, image: UploadFile):
-        self.image = image
+        self.__temp = tempfile.NamedTemporaryFile("wb+", dir=self._temp_folder)
+        if self.receive_file(image):
+            self.convert_image()
         self.generate_thumbnail()
 
     def __enter__(self):
         return self
 
     def __exit__(self, exc_type, exc_value, traceback):
+        if not self.__temp.closed:
+            self.__temp.close()
         for file in [self.image, self.thumbnail]:
             os.unlink(file)
 
-    @property
-    def image(self):
-        return self.__image
-
-    @image.setter
-    def image(self, file):
+    def receive_file(self, file):
         """"""
         real_file_size = 0
 
-        temp = tempfile.NamedTemporaryFile("wb+", dir=self._temp_folder)
         for chunk in file.file:
             real_file_size += len(chunk)
             if real_file_size > self.__MAX_IMAGE_SIZE:
-                raise self.exceeded_size
-            temp.write(chunk)
+                raise exceeded_size()
+            self.__temp.write(chunk)
 
-        temp_path = temp.name + ".jpg"
+        return True
 
+    def convert_image(self):
+        filepath = self.__temp.name + ".jpg"
         try:
-            with Image.open(temp.name) as img:
+            with Image.open(self.__temp.name) as img:
                 if img.mode != "RGB":
                     img = img.convert("RGB")
-                img.save(temp_path, "JPEG", optimize=True, quality=80)
-                temp.close()
-        except OSError:
-            raise self.invalid_img_file
+                img.save(filepath, optimize=True, quality=80)
+                self.__temp.close()
 
-        self.__image = temp_path
+        except OSError as e:
+            logging.error(e)
+            raise invalid_img_file()
+        self.__image = filepath
 
     @property
     def thumbnail(self):
         return self.__thumbnail
 
+    @property
+    def image(self):
+        return self.__image
+
     def generate_thumbnail(self):
         """"""
-        temp_path = self.image[:-4] + ".thumbnail.jpg"
-        with Image.open(self.__image) as im:
+        filepath = self.image[:-4] + ".thumbnail.jpg"
+        with Image.open(self.image) as im:
             im.thumbnail(self.__THUMBNAIL_SIZE)
-            im.save(temp_path, "JPEG")
-        self.__thumbnail = temp_path
+            im.save(filepath, "JPEG", optimize=True, quality=80)
+        self.__thumbnail = filepath
 
     def upload(self, folder, id) -> dict:
         """"""
@@ -124,7 +121,7 @@ class ImageUpload:
             or file.content_type not in cls._accepted_file_types
             or file_info.extension.lower() not in cls._accepted_file_types
         ):
-            raise cls.invalid_img_file
+            raise invalid_img_file()
 
         return True
 
