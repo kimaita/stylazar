@@ -79,9 +79,22 @@ class UserUpdate(SQLModel):
     name: str | None = None
     email: EmailStr | None = None
     bio: str | None = None
-    picture_url: str | None = None
     social_links: dict | None = None
     interests: list[str] | None = None
+
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "name": "F. Scott Fitzgerald",
+                "email": "fitzgerald@gatsby.com",
+                "bio": "Widely known simply as Scott Fitzgerald, an American novelist, essayist, and short story writer.",
+                "social_links": {
+                    "reddit": "https://reddit.com/u/fscottg",
+                    "x": "https://x.com/scottyf",
+                },
+                "interests": ["jazz", "poetry"],
+            }
+        }
 
 
 class UpdatePassword(SQLModel):
