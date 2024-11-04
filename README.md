@@ -1,31 +1,41 @@
 # Stylazar Blog Website
+
 A simple full-stack blog application built using the stack:
 
 - React for the frontend
 - FastAPI for the backend
-- MongoDB as the database
-- PostgreSQL for database management
+- MongoDB as the content database
+- PostgreSQL for user and metadata storage
+- AWS S3 for image storage
 
 It has simple blog application features like authentication, posting contents which would have title and description, allowing users to create, read, update, and delete (CRUD) blog posts, with a simple and responsive interface.
 
 ## Features
 
-- Create, Read, Update, and Delete blog posts
-- FastAPI backend with MongoDB as the database
-- React frontend for interacting with the blog
-- React Quill for creating and updating blog posts
-- CORS support for communication between frontend and backend
+- 💫 Modern, responsive UI built with React
+- 🎨 Rich text editor with Markdown support using React Quill
+- 🚀 High-performance API built with FastAPI
+- 🔒 JWT-based authentication and authorization
+- 📝 Rich content management with MongoDB
+- 👥 User management with PostgreSQL
+- 🖼️ Image upload and processing with S3
+- 🔍 Full-text search capabilities
+- 📱 REST API with automatic OpenAPI documentation
 
 ## Project Structure
 
 ```plaintext
 stylazar-blog-website/
 ├── backend/
-│   ├── api                 # FastAPI app with blog routes
-│   ├── core                # MongoDB connection setup
-│   ├── crud                # Pydantic models for blog posts
-│   ├── middleware          # 
-│   ├── models              # 
+│   ├── api                 # FastAPI routes definition
+│   ├── core                # Core app functionality - database, config, etc
+│   ├── crud                # CRUD methods for database models
+│   ├── middleware          # App HTTP middleware
+│   ├── models              # ORM/ODM model definitions
+│   ├── docker-compose.yml  # Backend docker compose
+│   ├── Dockerfile          # API container image
+│   ├── pyproject.toml      # Project dependencies
+│   ├── main.py             # App entrypoint
 ├── client-side/
 │   ├── public/
 │   ├── src/
@@ -39,5 +49,5 @@ stylazar-blog-website/
 
 ## Authors
 
-* Georgina Kimani - Frontend developer
-* John Kimaita - Backend developer
+- [Georgina Kimani](https://github.com/Geena254) - Frontend developer
+- [John Kimaita](https://github.com/kimaita) - Backend developer
