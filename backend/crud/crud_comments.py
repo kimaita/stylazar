@@ -16,18 +16,18 @@ def create_comment(
 
 def get_by_id(id: uuid.UUID, session: Session):
     """"""
-    comment = session.get(Comment, id)
-    if not comment:
-        raise exceptions.not_found_exception("comment")
-
-    return comment
+    return session.get(Comment, id)
 
 
-def update_comment(id: uuid.UUID, update: CommentUpdate, session: Session):
+def update_comment(update: CommentUpdate, comment: Comment, session: Session):
     """"""
-    raise NotImplementedError
+    update_data = update.model_dump(exclude_unset=True)
+    comment.sqlmodel_update(update_data)
+    return commit_to_db(session, comment)
 
 
-def delete_comment(id: uuid.UUID, session: Session):
+def delete_comment(comment: Comment, session: Session):
     """"""
-    raise NotImplementedError
+    session.delete(comment)
+    session.commit()
+    
