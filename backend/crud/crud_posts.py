@@ -6,6 +6,7 @@ from datetime import datetime, timezone, timedelta
 
 import lxml.html
 from beanie import PydanticObjectId
+from beanie.operators import Set
 from core.config import settings
 from core.db import commit_to_db
 from core.utils import ImageUpload
@@ -17,6 +18,10 @@ from models.post import (
     PostPublic,
     PostReaction,
     ReactionBase,
+    PostUpdate,
+    PostAuthor,
+    PostPublicWithAuthor,
+    PostDocumentUpdate,
 )
 from sqlmodel import Session, select
 from core import exceptions
@@ -36,20 +41,18 @@ def generate_excerpt(post: str, max_length: int = 512):
     else:
         excerpt = content[:last_space]
 
-    # Remove trailing punctuation
     excerpt = excerpt.rstrip(".,!?:;")
 
-    return excerpt + "..."
+    return excerpt
 
-
-async def generate_slug(title, session):
+def generate_slug(title, session):
     """"""
     ptn_nonalpha = re.compile(r"[\W_]")
     ptn_punct = re.compile(r"[.,!?:;\'\"]")
     stripped = ptn_punct.sub("", title.rstrip().lower())
     slug = ptn_nonalpha.sub("-", stripped)
     test_slug = slug
-    while await get_post_by_slug(test_slug, session):
+    while check_slug(test_slug, session):
         test_slug = f"{slug}-{secrets.token_hex(4)}"
 
     return slug if (slug == test_slug) else test_slug
@@ -60,7 +63,7 @@ def post_exists(id: uuid.UUID, session: Session) -> Post | None:
     return session.get(Post, id)
 
 
-async def create_post(post: PostCreate, session, banner_image):
+async def create_post(post: PostCreate, user_id, session, banner_image):
     """"""
     post_document = PostDocument(body=post.body)
 
@@ -72,11 +75,12 @@ async def create_post(post: PostCreate, session, banner_image):
         post_document.published_at = published_at
 
     await post_document.insert()
-    slug = await generate_slug(post.title, session)
+    slug = generate_slug(post.title, session)
     update_data = {
         "slug": slug,
         "is_public": post.is_published,
         "mongo_id": str(post_document.id),
+        "user_id": user_id,
     }
     db_post = Post.model_validate(post, update=update_data)
     insPost = commit_to_db(session, db_post)
@@ -84,10 +88,14 @@ async def create_post(post: PostCreate, session, banner_image):
     if banner_image:
         if ImageUpload.is_image(banner_image):
             post_folder = f"{settings.POST_IMAGES}/{insPost.id}"
-
+            banner_pic = None
             with ImageUpload(banner_image) as img:
-                banner_pic = img.upload(post_folder, insPost.id)
-            await post_document.set({PostDocument.banner_image: banner_pic.folder})
+                try:
+                    banner_pic = img.upload(post_folder, insPost.id)
+                except Exception as e:
+                    print("Image upload failed: ", e)
+            if banner_pic:
+                await post_document.set({PostDocument.banner_image: banner_pic.folder})
     post_document_public = PostDocumentBase(**post_document.model_dump())
 
     return {**insPost.model_dump(), **post_document_public.model_dump()}
@@ -100,46 +108,82 @@ async def get_mongo_doc(mongo_id: str) -> PostDocumentBase | None:
         return PostDocumentBase(**post_doc.model_dump())
 
 
-async def get_post_by_id(id: uuid.UUID, session: Session) -> PostPublic | None:
+async def get_post_by_id(
+    id: uuid.UUID, session: Session
+) -> PostPublicWithAuthor | None:
     """"""
     post = session.get(Post, id)
     if not post:
         return
+    author = PostAuthor(
+        user_id=post.author.id,
+        name=post.author.name,
+        profile_pic=post.author.picture_url,
+    )
 
     post_document = await get_mongo_doc(post.mongo_id)
 
-    return PostPublic(**post.model_dump(), **post_document.model_dump())
+    return PostPublicWithAuthor(
+        **post.model_dump(), **post_document.model_dump(), author=author
+    )
 
 
-async def get_post_by_slug(slug: str, session: Session):
+def check_slug(slug: str, session: Session):
     """"""
     statement = select(Post).where(Post.slug == slug)
     try:
-        post = session.exec(statement).one()
-        return await get_post_by_id(post.id, session)
+        return session.exec(statement).one()
     except Exception:
         return None
 
 
-def update_post():
+async def get_post_by_slug(slug: str, session: Session):
     """"""
+    post = check_slug(slug, session)
+    if post:
+        return await get_post_by_id(post.id, session)
+
+    return None
 
 
+async def update_post(post: Post, update: PostUpdate, session: Session):
+    """"""
+    update_dict = update.model_dump(exclude_unset=True)
+    if "title" in update_dict:
+        update_dict["slug"] = generate_slug(update_dict.get("title"), session)
+    post.sqlmodel_update(update_dict)
+
+    if update_dict.get("is_published"):
+        update_dict["published_at"] = datetime.now(timezone.utc)
+    post_doc_updates = PostDocumentUpdate.model_validate(update_dict).model_dump(
+        exclude_unset=True
+    )
+    post_doc = await PostDocument.get(PydanticObjectId(post.mongo_id))
+    if post_doc:
+        await post_doc.update({"$set": post_doc_updates})
+
+    db_post = commit_to_db(session, post)
+    mongo_post = PostDocumentBase(**post_doc.model_dump())
+
+    return PostPublic(**db_post.model_dump(), **mongo_post.model_dump())
+
+
+# TODO: Post Deletion
 def delete_post():
     """"""
 
 
 async def generate_feed(page: int, page_size: int, session: Session):
     """"""
-    recency = datetime.now(timezone.utc) - timedelta(weeks=3)
+    recency = datetime.now(timezone.utc) - timedelta(weeks=8)
     statement = (
         select(Post)
         .where(
-            Post.is_published,
-            Post.is_public,
+            # Post.is_published,
+            # Post.is_public,
             Post.updated_at > recency,
         )
-        .order_by(Post.updated_at)
+        .order_by(Post.updated_at.desc())
         .offset(page * page_size)
         .limit(page_size)
     )

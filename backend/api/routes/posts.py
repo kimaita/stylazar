@@ -3,9 +3,17 @@ from typing import Annotated, Any
 
 from core import exceptions
 from crud import crud_comments, crud_posts
-from fastapi import APIRouter, Form, Query, Request, UploadFile, status
+from fastapi import APIRouter, Form, Query, Request, UploadFile, status, HTTPException
 from models.comment import CommentCreate, CommentPublic
-from models.post import PostCreate, PostPublic, PostUpdate, ReactionBase, PostPublicWithAuthor
+from models.post import (
+    PostCreate,
+    PostPublic,
+    PostUpdate,
+    ReactionBase,
+    PostPublicWithAuthor,
+    PostDisplay,
+    PostDisplayWithAuthor,
+)
 from models.util import Message
 
 from ..deps import CurrentUser, SessionDep
@@ -23,14 +31,14 @@ async def create_post(
     banner_image: UploadFile | None = None,
 ):
     """Upload a post"""
-    post = PostCreate(
-        title=post_title, body=post_body, user_id=user.id, is_published=publish
+    post = PostCreate(title=post_title, body=post_body, is_published=publish)
+    res = await crud_posts.create_post(
+        post, user_id=user.id, session=session, banner_image=banner_image
     )
-    res = await crud_posts.create_post(post, session, banner_image=banner_image)
     return res
 
 
-@router.get("/", response_model=list[PostPublicWithAuthor])
+@router.get("/", response_model=list[PostDisplayWithAuthor])
 async def get_posts_index(
     session: SessionDep,
     offset: int = 0,
@@ -40,7 +48,7 @@ async def get_posts_index(
     return await crud_posts.generate_feed(offset, limit, session)
 
 
-@router.get("/{id}", response_model=PostPublic)
+@router.get("/{id}", response_model=PostPublicWithAuthor)
 async def get_post(id: str, session: SessionDep) -> Any:
     """Retrieve a specific post by the database ID or the title slug"""
     try:
@@ -55,22 +63,44 @@ async def get_post(id: str, session: SessionDep) -> Any:
     return post
 
 
-@router.patch("/{id}")
-def update_post(
-    id: uuid.UUID, updates: PostUpdate, user: CurrentUser, session: SessionDep
+@router.patch("/{id}", response_model=PostPublic)
+async def update_post(
+    id: uuid.UUID,
+    updates: PostUpdate,
+    user: CurrentUser,
+    session: SessionDep,
 ):
     """Update post"""
+    db_post = crud_posts.post_exists(id, session)
+    if not db_post:
+        raise exceptions.not_found_exception("post")
+    if db_post.user_id != user.id:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="You cannot edit this post",
+        )
 
-    raise NotImplementedError
+    return await crud_posts.update_post(post=db_post, update=updates, session=session)
 
 
-@router.delete("/{id}")
+# TODO: Implement Post deletion route
+@router.delete("/{id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_post(id: uuid.UUID, user: CurrentUser, session: SessionDep):
     """Update post"""
+    db_post = crud_posts.post_exists(id)
+    if not db_post:
+        raise exceptions.not_found_exception("post")
+    if db_post.user_id != user.id:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="You cannot delete this post",
+        )
     raise NotImplementedError
 
 
-@router.post("/{id}/comment", response_model=CommentPublic)
+@router.post(
+    "/{id}/comment", status_code=status.HTTP_201_CREATED, response_model=CommentPublic
+)
 def add_post_comment(
     id: uuid.UUID, comment: CommentCreate, user: CurrentUser, session: SessionDep
 ):
