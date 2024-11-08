@@ -5,12 +5,14 @@ from crud.crud_users import authenticate_user
 from api.deps import SessionDep
 from core.security import create_access_token, create_refresh_token, verify_token
 from core.config import settings
-from models.util import Token
+from models.util import Token, Message
 from fastapi import APIRouter, Depends, HTTPException, status, Response, Request
 from fastapi.security import OAuth2PasswordRequestForm
 from core.exceptions import invalid_credentials
 
 router = APIRouter(tags=["login"])
+
+JWT_COOKIE = "refresh_token"
 
 
 @router.post("/login/access_token", response_model=Token)
@@ -35,7 +37,7 @@ async def login_access_token(
     max_age = settings.REFRESH_TOKEN_EXPIRE_DAYS * 24 * 60 * 60
 
     response.set_cookie(
-        key="refresh_token",
+        key=JWT_COOKIE,
         value=refresh_token,
         httponly=True,
         secure=True,
@@ -60,7 +62,7 @@ async def refresh_access_token(request: Request) -> dict[str, str]:
     Returns:
         dict[str, str]: _description_
     """
-    refresh_token = request.cookies.get("refresh_token")
+    refresh_token = request.cookies.get(JWT_COOKIE)
     if not refresh_token:
         raise invalid_credentials("Refresh token missing.")
 
@@ -70,6 +72,13 @@ async def refresh_access_token(request: Request) -> dict[str, str]:
 
     new_access_token = await create_access_token(data={"sub": str(token_data.user_id)})
     return {"access_token": new_access_token, "token_type": "bearer"}
+
+
+@router.delete("/logout", status_code=status.HTTP_204_NO_CONTENT)
+async def logout_user(response: Response):
+    """"""
+    response.delete_cookie(JWT_COOKIE)
+    return Message(message='Logged out')
 
 
 # TODO: Implement password reset token generation - forgotten
