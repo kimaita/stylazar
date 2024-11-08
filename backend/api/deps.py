@@ -33,7 +33,7 @@ async def get_current_user(session: SessionDep, token: TokenDep) -> User:
     )
 
     token_data = await verify_token(token)
-    if not token:
+    if not token_data:
         raise credentials_exception
 
     user = get_user_by_id(session, token_data.user_id)
