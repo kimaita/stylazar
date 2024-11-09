@@ -1,0 +1,51 @@
+import React, { useState, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { Alert } from '@mui/material';
+import Editor from '../components/PostEditor';
+import { usePosts } from '../hooks/usePosts';
+
+const PostEdit = () => {
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const [post, setPost] = useState(null);
+  const { loading, error, fetchPostById, updatePost } = usePosts();
+
+  useEffect(() => {
+    const loadPost = async () => {
+      try {
+        const data = await fetchPostById(id);
+        setPost(data);
+      } catch (err) {
+        navigate('/posts');
+      }
+    };
+
+    loadPost();
+  }, [id, navigate, fetchPostById]);
+
+  const handleSave = async (postData) => {
+    try {
+      await updatePost(id, postData);
+      navigate(`/posts/${id}`);
+    } catch (err) {
+      throw new Error('Failed to save post');
+    }
+  };
+
+  return (
+    <>
+      {error && (
+        <Alert severity="error" sx={{ mb: 2 }}>
+          {error}
+        </Alert>
+      )}
+      <Editor
+        post={post}
+        onSave={handleSave}
+        isLoading={loading}
+      />
+    </>
+  );
+};
+
+export default PostEdit;
