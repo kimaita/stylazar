@@ -179,8 +179,8 @@ async def generate_feed(page: int, page_size: int, session: Session):
     statement = (
         select(Post)
         .where(
-            # Post.is_published,
-            # Post.is_public,
+            Post.is_published,
+            Post.is_public,
             Post.updated_at > recency,
         )
         .order_by(Post.updated_at.desc())
