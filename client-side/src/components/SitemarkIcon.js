@@ -1,4 +1,5 @@
-import { styled, Link, Typography } from "@mui/material";
+import { Link, Typography } from "@mui/material";
+import { styled } from '@mui/material/styles';
 import * as React from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -15,7 +16,6 @@ export default function SitemarkIcon() {
       noWrap
       color="textSecondary"
       sx={{ display: { sm: "block" } }}
-    //   pount
       onClick={() => {
         navigate("/");
       }}
