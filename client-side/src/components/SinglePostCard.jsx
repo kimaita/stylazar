@@ -6,7 +6,7 @@ import CardMedia from "@mui/material/CardMedia";
 import Typography from "@mui/material/Typography";
 import { styled } from "@mui/material/styles";
 import * as React from "react";
-
+import banner from "../assets/pic-about-01.jpg"
 const SyledCard = styled(Card)(({ theme }) => ({
   display: "flex",
   flexDirection: "column",
@@ -31,7 +31,7 @@ const SyledCardContent = styled(CardContent)({
   padding: 16,
   flexGrow: 1,
   "&:last-child": {
-    paddingBottom: 8,
+    paddingBottom: 4,
   },
 });
 
@@ -100,7 +100,7 @@ export default function PostCard({ blogPost, onPostClick, onAuthorClick }) {
       <CardMedia
         component="img"
         alt="green iguana"
-        image={blogPost.banner_image}
+        image={blogPost.banner_image||banner}
         sx={{
           aspectRatio: "16 / 9",
           borderBottom: "1px solid",

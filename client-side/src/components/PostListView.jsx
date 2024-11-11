@@ -1,9 +1,17 @@
 import React from "react";
-import { Typography, Pagination, CircularProgress } from "@mui/material";
+import {
+  Typography,
+  Pagination,
+  CircularProgress,
+  Stack,
+  Container,
+  Icon,
+  Box,
+} from "@mui/material";
 import Grid from "@mui/material/Grid2";
 import PostCard from "./SinglePostCard";
 import { useNavigate } from "react-router-dom";
-
+import { ErrorOutlineOutlined } from "@mui/icons-material";
 export const PostListView = ({
   posts,
   loading,
@@ -20,8 +28,29 @@ export const PostListView = ({
     navigate(`/posts/${postId}`);
   };
 
-  if (loading) return <CircularProgress />;
-  if (error) return <Typography color="error">{error}</Typography>;
+  if (loading) {
+    return <CircularProgress />;
+  }
+  if (error) {
+    return (
+      <Container maxWidth="sm">
+        <Stack
+          spacing={3}
+          sx={{
+            justifyContent: "center",
+            alignItems: "center",
+            height: "60vh",
+            p: 4,
+          }}
+        >
+          <ErrorOutlineOutlined sx={{ fontSize: 96 }} />
+          <Typography variant="h3" color="textSecondary" align="center">
+            Failed to load
+          </Typography>
+        </Stack>
+      </Container>
+    );
+  }
 
   return (
     <>
@@ -41,7 +70,8 @@ export const PostListView = ({
         page={page}
         onChange={(e, value) => onPageChange(value)}
         sx={{ mt: 4, display: "flex", justifyContent: "center" }}
-        variant="outlined" shape="rounded"
+        variant="outlined"
+        shape="rounded"
       />
     </>
   );
