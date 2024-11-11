@@ -6,9 +6,9 @@ import {
   Divider,
   Paper,
   Stack,
-  styled,
   Typography,
 } from "@mui/material";
+import { styled } from "@mui/material/styles";
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import banner from "../assets/pic-about-01.jpg";
@@ -42,7 +42,7 @@ export default function PostDetail({ post }) {
   const navigate = useNavigate();
 
   return (
-    <Paper sx={{ p: 4 }}>
+    <Paper sx={{ p: 2 }}>
       <PostTitleTypography variant="h1" gutterBottom>
         {post?.title}
       </PostTitleTypography>
@@ -62,23 +62,23 @@ export default function PostDetail({ post }) {
       <Divider sx={{ mt: 2, mb: 3 }} />
 
       <Stack
-        direction="column"
+        direction="row"
         spacing={1}
         sx={{
-          justifyContent: "flex-start",
+          justifyContent: "space-between",
           alignItems: "flex-start",
         }}
       >
-        <Button
+        <Chip
           variant="outlined"
-          size="large"
+          size="medium"
+          color="primary"
           onClick={() => navigate(`/authors/${post?.author.user_id}`)}
-          startIcon={
+          avatar={
             <Avatar alt={post?.author.name} src={post?.author.profile_url} />
           }
-        >
-          <Typography variant="button">{post?.author.name}</Typography>
-        </Button>
+          label={post?.author.name}
+        />
         <Typography variant="overline">
           {formatDate(post?.published_at)}
         </Typography>

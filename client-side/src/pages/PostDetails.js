@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import {
   CardMedia,
@@ -19,7 +19,7 @@ import {
   Avatar,
   Paper,
 } from "@mui/material";
-import usePostDetails from "../hooks/usePostDetails";
+import { usePosts } from "../hooks/usePosts";
 import banner from "../assets/pic-about-01.jpg";
 import {
   ThumbUpAltOutlined,
@@ -33,32 +33,24 @@ import {
 import PostDetail from "../components/PostDetailView";
 import { useAuth } from "../hooks/useAuth";
 
-const PostContentTypography = styled(Typography)(({ theme }) => ({
-  fontFamily: "Varela, sans-serif",
-  fontSize: "1.1rem",
-}));
-
-const PostTitleTypography = styled(Typography)(({ theme }) => ({
-  fontFamily: "Lora, sans-serif",
-}));
-
-const options = {
-  year: "numeric",
-  month: "short",
-  day: "numeric",
-  hour: "numeric",
-  minute: "2-digit",
-  hour12: true,
-};
-
-const placeholder_byline =
-  "Quisque scelerisque, sem ultrices finibus pretium, eros ipsum tristique magna, nec condimentum lacus odio at neque. Suspendisse tellus dui, sagittis vitae lobortis sit amet, blandit sed quam. Nulla lectus mauris, hendrerit ac augue.";
-
 const PostDetailPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { post, loading, error } = usePostDetails(id);
+  const { fetchPostById, loading, error } = usePosts();
+  const [post, setPost] = useState(null);
   const { user } = useAuth();
+
+  useEffect(
+    () => async () => {
+      const post = await fetchPostById(id);
+      setPost(post);
+
+      return () => {
+        setPost(null);
+      };
+    },
+    [fetchPostById, id]
+  );
 
   if (error) {
     return (

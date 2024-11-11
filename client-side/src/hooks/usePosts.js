@@ -36,10 +36,7 @@ import { PostService } from "../services/postService";
 //   };
 // };
 
-
 const DEFAULT_PAGE_SIZE = 10;
-
-
 
 export const usePosts = () => {
   const [posts, setPosts] = useState([]);
@@ -47,89 +44,103 @@ export const usePosts = () => {
   const [error, setError] = useState(null);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  
+
   // Use refs for mutable values that shouldn't trigger rerenders
   const abortController = useRef(null);
-  
-  // Helper function for error handling
+
   const handleError = useCallback((err) => {
-    setError(err.message);
-    throw err;
+    setError(err);
   }, []);
 
-  // Helper function for loading state
-  const withLoading = useCallback(async (operation) => {
-    setLoading(true);
-    setError(null);
-    try {
-      const result = await operation();
-      return result;
-    } catch (err) {
-      handleError(err);
-    } finally {
-      setLoading(false);
-    }
-  }, [handleError]);
+  const withLoading = useCallback(
+    async (operation) => {
+      setLoading(true);
+      setError(null);
+      try {
+        const result = await operation();
+        return result;
+      } catch (err) {
+        handleError(err);
+      } finally {
+        setLoading(false);
+      }
+    },
+    [handleError]
+  );
 
-  // State updaters - memoized once since they only depend on the function signature
   const addPost = useCallback((newPost) => {
-    setPosts(posts => [...posts, newPost]);
+    setPosts((posts) => [...posts, newPost]);
   }, []);
 
   const removePost = useCallback((postId) => {
-    setPosts(posts => posts.filter(post => post.id !== postId));
+    setPosts((posts) => posts.filter((post) => post.id !== postId));
   }, []);
 
   const updatePostInList = useCallback((updatedPost) => {
-    setPosts(posts => posts.map(post => 
-      post.id === updatedPost.id ? updatedPost : post
-    ));
+    setPosts((posts) =>
+      posts.map((post) => (post.id === updatedPost.id ? updatedPost : post))
+    );
   }, []);
 
-  const fetchPosts = useCallback(async (pageNum=page, pageSize=DEFAULT_PAGE_SIZE) => {
-    if (abortController.current) {
-      abortController.current.abort();
-    }
-    abortController.current = new AbortController();
+  const fetchPosts = useCallback(
+    async (pageNum = page, pageSize = DEFAULT_PAGE_SIZE) => {
+      if (abortController.current) {
+        abortController.current.abort();
+      }
+      abortController.current = new AbortController();
 
-    return withLoading(async () => {
-      const data = await PostService.getPostsList(pageNum);
-      setPosts(data);
-      setTotalPages(Math.ceil( data.length / 10));
-      setPage(pageNum);      
-      return data;
-    });
-  }, [withLoading, page]);
+      return withLoading(async () => {
+        const data = await PostService.getPostsList(pageNum);
+        setPosts(data);
+        setTotalPages(Math.ceil(data.length / pageSize));
+        setPage(pageNum);
+        return data;
+      });
+    },
+    [withLoading, page]
+  );
 
-  const fetchPostById = useCallback(async (id) => {
-    return withLoading(async () => {
-      const data = await PostService.loadPost(id);
-      return data;
-    });
-  }, [withLoading]);
+  const fetchPostById = useCallback(
+    async (id) => {
+      return withLoading(async () => {
+        const data = await PostService.loadPost(id);
+        return data;
+      });
+    },
+    [withLoading]
+  );
 
-  const createPost = useCallback(async (postData) => {
-    return withLoading(async () => {
-      const newPost = await PostService.createPost(postData);
-      addPost(newPost);
-      return newPost;
-    });
-  }, [withLoading, addPost]);
+  const createPost = useCallback(
+    async (postData) => {
+      return withLoading(async () => {
+        const newPost = await PostService.createPost(postData);
+        addPost(newPost);
+        return newPost;
+      });
+    },
+    [withLoading, addPost]
+  );
 
-  const updatePost = useCallback(async (id, postData) => {
-    return withLoading(async () => {
-      const updatedPost = await PostService.updatePost(id, postData);
-      updatePostInList(updatedPost);
-      return updatedPost;
-    });
-  }, [withLoading, updatePostInList]);
+  const updatePost = useCallback(
+    async (id, postData) => {
+      return withLoading(async () => {
+        const updatedPost = await PostService.updatePost(id, postData);
+        updatePostInList(updatedPost);
+        return updatedPost;
+      });
+    },
+    [withLoading, updatePostInList]
+  );
 
-  const deletePost = useCallback(async (id) => {
-    return withLoading(async () => {
-      await PostService.deletePost(id)
-      removePost(id);
-    });
-  }, [withLoading, removePost]);
+  const deletePost = useCallback(
+    async (id) => {
+      return withLoading(async () => {
+        await PostService.deletePost(id);
+        removePost(id);
+      });
+    },
+    [withLoading, removePost]
+  );
 
   // Cleanup function for abort controller
   const cleanup = useCallback(() => {
