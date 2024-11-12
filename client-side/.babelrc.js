@@ -17,6 +17,12 @@ const plugins = [
     },
     "icons",
   ],
+  [
+    {
+      "presets": ["@babel/preset-env", "react-app"],
+      "plugins": ["@babel/plugin-proposal-private-property-in-object"]
+    }
+  ]
 ];
 
 module.exports = { plugins };

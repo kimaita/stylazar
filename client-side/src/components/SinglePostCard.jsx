@@ -7,6 +7,7 @@ import Typography from "@mui/material/Typography";
 import { styled } from "@mui/material/styles";
 import * as React from "react";
 import banner from "../assets/pic-about-01.jpg"
+
 const SyledCard = styled(Card)(({ theme }) => ({
   display: "flex",
   flexDirection: "column",

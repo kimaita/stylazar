@@ -10,6 +10,8 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import PostDetailPage from "./pages/PostDetails";
 import PostEdit from "./pages/EditPost";
 import CreatePost from "./pages/CreatePost";
+import Footer from "./components/Footer";
+
 export default function App(props) {
   return (
     <AppTheme {...props}>
@@ -45,6 +47,7 @@ export default function App(props) {
           />
           <Route path="/posts/:id" element={<PostDetailPage />} />
         </Routes>
+        <Footer />
       </Router>
     </AppTheme>
   );
