@@ -1,17 +1,17 @@
 """"""
 
 from contextlib import asynccontextmanager
-from logging import info
-from beanie import init_beanie
-from motor.motor_asyncio import AsyncIOMotorClient
-from sqlmodel import SQLModel, create_engine, Session
-from fastapi import FastAPI
-from .config import settings
 
 from models.post import Post, PostReaction, PostDocument
 from models.user import User, UserIp
 from models.visitor import Visitor
 from models.comment import Comment
+from models.session_activity import SessionActivity
+from beanie import init_beanie
+from fastapi import FastAPI
+from motor.motor_asyncio import AsyncIOMotorClient
+from sqlmodel import Session, SQLModel, create_engine
+from .config import settings
 
 pg_engine = create_engine(
     url=str(settings.PG_DATABASE_URI),
@@ -24,15 +24,14 @@ def initialize_db():
 
 
 @asynccontextmanager
-async def mongo_lifespan(app: FastAPI):  # type: ignore
+async def lifespan(app: FastAPI):
     """Initialize application services."""
+    initialize_db()
     app.mongodb_client = AsyncIOMotorClient(str(settings.MONGO_DATABASE_URI))
     app.db = app.mongodb_client.get_database(settings.MONGO_INITDB_DATABASE)
     ping_response = await app.db.command("ping")
     if int(ping_response["ok"]) != 1:
-        raise Exception("Problem connecting to database cluster.")
-    else:
-        info("Connected to database cluster.")
+        raise Exception("Problem connecting to mongodb.")
 
     await init_beanie(database=app.db, document_models=[PostDocument])  # type: ignore[arg-type,attr-defined]
 

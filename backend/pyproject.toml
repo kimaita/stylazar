@@ -17,6 +17,7 @@ dependencies = [
     "psycopg>=3.2.3",
     "pydantic-settings>=2.6.0",
     "pyjwt>=2.9.0",
+    "redis-om>=0.3.3",
     "redis>=5.1.1",
     "requests>=2.32.3",
     "sqlmodel>=0.0.22",

@@ -1,22 +1,45 @@
-from starlette.middleware.base import BaseHTTPMiddleware
-from starlette.requests import Request
-from starlette.responses import Response
+"""Logging configuration"""
 
-from crud.crud_users import log_ip_address
+from datetime import datetime, timezone
+from typing import Callable
+
+from core.db import pg_engine
+from crud.crud_session_activity import create_activity
+from fastapi import FastAPI, Request, Response
+from models.session_activity import SessionActivity, HttpMethod
+from sqlmodel import Session
+from starlette.middleware.base import BaseHTTPMiddleware
 
 
 class RequestLoggingMiddleware(BaseHTTPMiddleware):
-    def __init__(self, app):
+    def __init__(self, app: FastAPI) -> None:
         super().__init__(app)
 
-    async def dispatch(self, request: Request, call_next) -> Response:
-        # Perform actions before the request is processed
+    async def dispatch(self, request: Request, call_next: Callable) -> Response:
+        try:
+            method = HttpMethod(request.method)
+        except ValueError:
+            return await call_next(request)
+
         ip = request.client.host
-        # log_ip_address(ip)
+        route = request.url.path
+        request_time = datetime.now(timezone.utc)
+        # if request.query_params:
+        #     route += f"?{request.query_params}"
+        req = SessionActivity(
+            ip_address=ip,
+            requested_at=request_time,
+            route=route,
+            method=method,
+        )
 
-        # Forward the request to the next middleware or route handler
-        response = await call_next(request)
+        response: Response = await call_next(request)
 
-        # Perform actions after the request is processed
+        if req:
+            req.response_code = response.status_code
+            req.completed_at = datetime.now(timezone.utc)
+
+            with Session(pg_engine) as session:
+                create_activity(req, session)
 
         return response

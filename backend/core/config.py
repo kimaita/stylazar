@@ -1,6 +1,6 @@
 """"""
 
-from pydantic import MongoDsn, PostgresDsn, computed_field
+from pydantic import MongoDsn, PostgresDsn, RedisDsn, computed_field
 from pydantic_core import MultiHostUrl
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from dotenv import load_dotenv
@@ -24,6 +24,7 @@ class Settings(BaseSettings):
     POSTGRES_PORT: int
 
     REDIS_PORT: int
+    REDIS_HOST: str
 
     MONGO_PORT: int
     MONGO_HOST: str
@@ -64,6 +65,15 @@ class Settings(BaseSettings):
             password=self.MONGO_INITDB_ROOT_PASSWORD,
             host=self.MONGO_HOST,
             port=self.MONGO_PORT,
+        )
+
+    @computed_field  # type: ignore[prop-decorator]
+    @property
+    def REDIS_URL(self) -> RedisDsn:
+        return MultiHostUrl.build(
+            scheme="redis",
+            host=self.REDIS_HOST,
+            port=self.REDIS_PORT,
         )
 
     # S3

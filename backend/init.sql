@@ -24,11 +24,12 @@ CREATE TABLE IF NOT EXISTS user_ips (
 CREATE TYPE http_method AS ENUM('DELETE', 'GET', 'PATCH', 'POST', 'PUT');
 CREATE TABLE IF NOT EXISTS session_activity (
     ip_address VARCHAR(15),
-    performed_at TIMESTAMPTZ NOT NULL,
+    requested_at TIMESTAMPTZ NOT NULL,
     route VARCHAR NOT NULL,
     method HTTP_METHOD NOT NULL,
     response_code INT,
-    PRIMARY KEY (ip_address, performed_at)
+    completed_at TIMESTAMPTZ,
+    PRIMARY KEY (ip_address, requested_at)
 );
 CREATE TABLE IF NOT EXISTS posts (
     id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
