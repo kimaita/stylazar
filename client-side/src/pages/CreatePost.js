@@ -1,8 +1,9 @@
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Alert } from '@mui/material';
-import Editor from '../components/PostEditor';
-import { usePosts } from '../hooks/usePosts';
+import React from "react";
+import { useNavigate } from "react-router-dom";
+import { Alert, Box, Typography } from "@mui/material";
+import Editor from "../components/PostEditor";
+import { usePosts } from "../hooks/usePosts";
+import AppAppBar from "../components/AppAppBar";
 
 const CreatePost = () => {
   const navigate = useNavigate();
@@ -13,21 +14,25 @@ const CreatePost = () => {
       const resp = await createPost(postData);
       navigate(`/posts/${resp.slug}`);
     } catch (err) {
-      throw new Error('Failed to create post');
+      throw new Error("Failed to create post");
     }
   };
 
+
   return (
     <>
+      <AppAppBar />
       {error && (
         <Alert severity="error" sx={{ mb: 2 }}>
           {error}
         </Alert>
       )}
-      <Editor 
-        onSave={handleSave}
-        isLoading={loading}
-      />
+      <Box>
+        <Typography variant="h4" gutterBottom>
+          New Blog Post
+        </Typography>
+        <Editor onSave={handleSave} isLoading={loading} />
+      </Box>
     </>
   );
 };

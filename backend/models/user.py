@@ -41,7 +41,7 @@ class User(BaseModel, UpdatableModel, table=True):
     email: EmailStr = Field(unique=True, index=True, sa_type=AutoString)
     bio: str | None = None
     social_links: dict | None = Field(default=None, sa_type=JSONB)
-    picture_url: str | None = None
+    avatar_links: dict | None = Field(default=None, sa_type=JSONB)
     interests: list[str] | None = Field(default=None, sa_column=Column(ARRAY(String)))
     password: str = Field()
 
@@ -69,7 +69,7 @@ class UserPublic(SQLModel):
     name: str
     bio: str | None = None
     social_links: dict | None = None
-    picture_url: str | None = None
+    avatar_links: dict | None = None
     interests: list[str] | None = None
 
 
@@ -80,6 +80,7 @@ class UserUpdate(SQLModel):
     email: EmailStr | None = None
     bio: str | None = None
     social_links: dict | None = None
+    avatar_links: dict | None = None
     interests: list[str] | None = None
 
     class Config:

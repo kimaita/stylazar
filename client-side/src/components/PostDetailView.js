@@ -1,14 +1,19 @@
 import {
   Avatar,
   Button,
+  Box,
   CardMedia,
   Chip,
   Divider,
+  Fade,
   Paper,
   Stack,
   Typography,
+  useScrollTrigger,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
+// import useScrollTrigger from "@mui/material/useScrollTrigger";
+
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import banner from "../assets/pic-about-01.jpg";
@@ -33,6 +38,46 @@ function formatDate(published_at) {
   };
   const date = new Date(published_at);
   return date.toLocaleString("en-GB", options);
+}
+
+function ScrollTop(props) {
+  const { children } = props;
+
+  const trigger = useScrollTrigger({
+    disableHysteresis: true,
+    threshold: 100,
+  });
+
+  const handleClick = (event) => {
+    const anchor = (event.target.ownerDocument || document).querySelector(
+      "#back-to-top-anchor"
+    );
+
+    if (anchor) {
+      anchor.scrollIntoView({
+        block: "center",
+      });
+    }
+  };
+//   ScrollTop.propTypes = {
+//     children: PropTypes.element,
+//     /**
+//      * Injected by the documentation to work in an iframe.
+//      * You won't need it on your project.
+//      */
+//     window: PropTypes.func,
+//   };
+  return (
+    <Fade in={trigger}>
+      <Box
+        onClick={handleClick}
+        role="presentation"
+        sx={{ position: "fixed", bottom: 16, right: 16 }}
+      >
+        {children}
+      </Box>
+    </Fade>
+  );
 }
 
 const placeholder_byline =

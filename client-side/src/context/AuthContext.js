@@ -18,18 +18,12 @@ export const AuthProvider = ({ children }) => {
     if (token) {
       api.defaults.headers.common["Authorization"] = "Bearer " + token;
       sessionStorage.setItem("accessToken", token);
-    } else {
-      delete api.defaults.headers.common["Authorization"];
     }
   }, [token]);
 
   const setToken = (newToken) => {
     setToken_(newToken);
-    authService
-        .getCurrentUser()
-        .then((authUser) => {
-          setUser(authUser);
-        })
+    
   };
   const contextValue = useMemo(
     () => ({

@@ -1,39 +1,81 @@
-import React, { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
 import {
-  CardMedia,
-  Typography,
+  ArrowBack,
+  BookmarkAddOutlined,
+  KeyboardArrowUp,
+  ModeEditOutlined,
+  ShareSharp,
+  ThumbDownAltOutlined,
+  ThumbUpAltOutlined,
+} from "@mui/icons-material";
+import {
+  Alert,
+  Avatar,
+  Box,
   Button,
   Container,
-  Skeleton,
-  Alert,
-  Chip,
+  Divider,
+  Fab,
+  Fade,
   List,
   ListItem,
-  ListItemText,
   ListItemAvatar,
+  ListItemText,
+  Skeleton,
   Stack,
-  Divider,
-  styled,
-  Box,
-  Avatar,
-  Paper,
+  Typography,
+  useScrollTrigger,
 } from "@mui/material";
-import { usePosts } from "../hooks/usePosts";
-import banner from "../assets/pic-about-01.jpg";
-import {
-  ThumbUpAltOutlined,
-  ThumbDownAltOutlined,
-  ShareSharp,
-  BookmarkAddOutlined,
-  BookmarkOutlined,
-  ModeEditOutlined,
-  ArrowBack,
-} from "@mui/icons-material";
+import React, { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import PostDetail from "../components/PostDetailView";
 import { useAuth } from "../hooks/useAuth";
+import { usePosts } from "../hooks/usePosts";
+import PropTypes from "prop-types";
 
-const PostDetailPage = () => {
+function ScrollTop(props) {
+  const { children } = props;
+
+  const trigger = useScrollTrigger({
+    disableHysteresis: true,
+    threshold: 100,
+  });
+
+  const handleClick = (event) => {
+    const anchor = (event.target.ownerDocument || document).querySelector(
+      "#back-to-top-anchor"
+    );
+
+    if (anchor) {
+      anchor.scrollIntoView({
+        block: "center",
+      });
+    }
+  };
+  //   ScrollTop.propTypes = {
+  //     children: PropTypes.element,
+  //     /**
+  //      * Injected by the documentation to work in an iframe.
+  //      * You won't need it on your project.
+  //      */
+  //     window: PropTypes.func,
+  //   };
+  return (
+    <Fade in={trigger}>
+      <Box
+        onClick={handleClick}
+        role="presentation"
+        sx={{ position: "fixed", bottom: 16, right: 16 }}
+      >
+        {children}
+      </Box>
+    </Fade>
+  );
+}
+ScrollTop.propTypes = {
+  children: PropTypes.element,
+};
+
+const PostDetailPage = (props) => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { fetchPostById, loading, error } = usePosts();
@@ -140,6 +182,11 @@ const PostDetailPage = () => {
               </ListItem>
             </List>
           </Box>
+          <ScrollTop {...props}>
+            <Fab size="small" aria-label="scroll back to top">
+              <KeyboardArrowUp />
+            </Fab>
+          </ScrollTop>
         </>
       )}
     </Container>

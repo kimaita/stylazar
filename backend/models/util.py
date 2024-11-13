@@ -1,5 +1,6 @@
 from uuid import UUID
 from sqlmodel import SQLModel
+from pydantic import BaseModel
 
 
 class Token(SQLModel):
@@ -19,3 +20,10 @@ class Message(SQLModel):
     """Generic response message"""
 
     message: str
+
+
+class UploadedImage(BaseModel):
+    """Return model for picture uploads"""
+
+    original: str
+    thumbnail: str

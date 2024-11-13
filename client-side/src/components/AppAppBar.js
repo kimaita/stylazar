@@ -1,5 +1,5 @@
 import * as React from "react";
-import { styled, alpha } from "@mui/material/styles";
+import {styled, alpha} from "@mui/material/styles";
 import Typography from "@mui/material/Typography";
 import InputBase from "@mui/material/InputBase";
 import MoreIcon from "@mui/icons-material/MoreVert";
@@ -11,7 +11,7 @@ import PropTypes from "prop-types";
 import FormControl from "@mui/material/FormControl";
 import InputAdornment from "@mui/material/InputAdornment";
 import OutlinedInput from "@mui/material/OutlinedInput";
-import { Link, useNavigate } from "react-router-dom";
+import {Link, useNavigate} from "react-router-dom";
 import {
   AppBar,
   Avatar,
@@ -29,20 +29,21 @@ import {
   Toolbar,
   Tooltip,
 } from "@mui/material";
-import { useAuth } from "../hooks/useAuth";
+import {useAuth} from "../hooks/useAuth";
 import ColorModeIconDropdown from "../shared-theme/ColorModeIconDropdown";
-import { AuthContext } from "../context/AuthContext";
+import {AuthContext} from "../context/AuthContext";
 import SitemarkIcon from "./SitemarkIcon";
+
 export function Search() {
   return (
-    <FormControl sx={{ width: { xs: "100%", md: "25ch" } }} variant="outlined">
+    <FormControl sx={{width: {xs: "100%", md: "25ch"}}} variant="outlined">
       <OutlinedInput
         size="small"
         id="search"
         placeholder="Search…"
-        sx={{ flexGrow: 1 }}
+        sx={{flexGrow: 1}}
         startAdornment={
-          <InputAdornment position="start" sx={{ color: "text.primary" }}>
+          <InputAdornment position="start" sx={{color: "text.primary"}}>
             {/* <SearchIcon fontSize="small" /> */}
           </InputAdornment>
         }
@@ -53,7 +54,8 @@ export function Search() {
     </FormControl>
   );
 }
-const SearchIconWrapper = styled("div")(({ theme }) => ({
+
+const SearchIconWrapper = styled("div")(({theme}) => ({
   padding: theme.spacing(0, 2),
   height: "100%",
   position: "absolute",
@@ -63,7 +65,7 @@ const SearchIconWrapper = styled("div")(({ theme }) => ({
   justifyContent: "center",
 }));
 
-const StyledInputBase = styled(InputBase)(({ theme }) => ({
+const StyledInputBase = styled(InputBase)(({theme}) => ({
   color: "inherit",
   "& .MuiInputBase-input": {
     padding: theme.spacing(1, 1, 1, 0),
@@ -77,7 +79,7 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
   },
 }));
 
-const StyledToolbar = styled(Toolbar)(({ theme }) => ({
+const StyledToolbar = styled(Toolbar)(({theme}) => ({
   display: "flex",
   alignItems: "center",
   justifyContent: "space-between",
@@ -92,12 +94,12 @@ const StyledToolbar = styled(Toolbar)(({ theme }) => ({
 }));
 
 function HideOnScroll(props) {
-  const { children } = props;
+  const {children} = props;
   const trigger = useScrollTrigger();
 
   return (
     <Slide appear={false} direction="down" in={!trigger}>
-      {children ?? <div />}
+      {children ?? <div/>}
     </Slide>
   );
 }
@@ -109,7 +111,7 @@ HideOnScroll.propTypes = {
 export default function AppAppBar(props) {
   const [anchorEl, setAnchorEl] = React.useState(null);
   const [mobileMoreAnchorEl, setMobileMoreAnchorEl] = React.useState(null);
-  const { user, signout } = useAuth();
+  const {user, signout} = useAuth();
   const navigate = useNavigate();
 
   const isMenuOpen = Boolean(anchorEl);
@@ -161,13 +163,13 @@ export default function AppAppBar(props) {
       <MenuList>
         <MenuItem onClick={handleMenuClose} component={Link} to="/profile">
           <ListItemIcon>
-            <AccountBoxIcon />
+            <AccountBoxIcon/>
           </ListItemIcon>
           <ListItemText>Profile</ListItemText>
         </MenuItem>
         <MenuItem onClick={handleLogout}>
           <ListItemIcon>
-            <LogoutIcon />
+            <LogoutIcon/>
           </ListItemIcon>
           <ListItemText>Logout</ListItemText>
         </MenuItem>
@@ -198,9 +200,8 @@ export default function AppAppBar(props) {
   );
 
 
-
   return (
-    <Box sx={{ flexGrow: 1 }}>
+    <Box sx={{flexGrow: 1}}>
       <HideOnScroll {...props}>
         <AppBar
           position="fixed"
@@ -212,14 +213,14 @@ export default function AppAppBar(props) {
         >
           <StyledToolbar>
             <SitemarkIcon/>
-            <Box sx={{ flexGrow: 1 }} />
-            <Box sx={{ display: { xs: "flex" }, gap: 3, alignItems: "center" }}>
+            <Box sx={{flexGrow: 1}}/>
+            <Box sx={{display: {xs: "flex"}, gap: 3, alignItems: "center"}}>
               {user ? (
                 <Button
                   color="success"
                   variant="outlined"
                   size="small"
-                  startIcon={<DriveFileRenameOutlineIcon />}
+                  startIcon={<DriveFileRenameOutlineIcon/>}
                   component={Link}
                   to="/posts/new"
                 >
@@ -228,13 +229,13 @@ export default function AppAppBar(props) {
               ) : (
                 <></>
               )}
-              <ColorModeIconDropdown />
+              <ColorModeIconDropdown/>
 
               {/* <Box sx={{ display: { xs: "none", md: "flex" } }}> */}
               <Tooltip title="Account">
                 <Avatar
                   alt={user?.name}
-                  src={user?.picture_url}
+                  src={user?.avatar_links.thumbnail}
                   onClick={handleProfileMenuOpen}
                 />
               </Tooltip>

@@ -5,7 +5,7 @@ from core.config import settings
 from core.security import hash_password, verify_password
 from core.utils import ImageUpload, UploadedImage
 from crud import crud_users
-from fastapi import APIRouter, HTTPException, UploadFile,status
+from fastapi import APIRouter, HTTPException, UploadFile, status
 from models.user import (
     UpdatePassword,
     UserPublic,
@@ -13,15 +13,17 @@ from models.user import (
     UserUpdate,
 )
 from models.util import Message
-from models.post import Post
+from models.post import Post, PostDisplay
 
 from ..deps import CurrentUser, SessionDep
 from sqlmodel import select
 
-router = APIRouter(prefix="/users", tags=['users'])
+router = APIRouter(prefix="/users", tags=["users"])
 
 
-@router.post("/register", status_code=status.HTTP_201_CREATED, response_model=UserPublic)
+@router.post(
+    "/register", status_code=status.HTTP_201_CREATED, response_model=UserPublic
+)
 def create_user(session: SessionDep, user_reg: UserRegister) -> Any:
     """Adds a new user to the user database"""
     user_exists = crud_users.get_user_by_email(
@@ -94,7 +96,7 @@ def update_profile_pic(
 
         with ImageUpload(image) as img:
             profile_pic = img.upload(user_folder, current_user.id)
-        user_data = UserUpdate(picture_url=profile_pic.folder)
+        user_data = UserUpdate(avatar_links=profile_pic.model_dump())
         crud_users.update_user(
             session=session, current_user=current_user, user_in=user_data
         )
@@ -116,7 +118,7 @@ def retrieve_user(session: SessionDep, user_id: uuid.UUID) -> Any:
 #  TODO: Implement user posts retrieval
 @router.get(
     "/{user_id}/posts",
-    # response_model="",
+    response_model=list[PostDisplay],
 )
 def retrieve_user_posts(user_id: uuid.UUID, session: SessionDep):
     """Get posts by a user"""
@@ -127,18 +129,23 @@ def retrieve_user_posts(user_id: uuid.UUID, session: SessionDep):
             detail="No user found",
         )
     statement = select(Post).where(Post.user_id == user.id)
-    res  = session.exec(statement).all()
+    res = session.exec(statement).all()
     return res
 
 
 # TODO: Implement user drafts retrieval
 @router.get(
     "/{user_id}/drafts",
-    response_model="",
+    response_model=list[PostDisplay],
 )
-def retrieve_user_drafts(current_user: CurrentUser):
+def retrieve_user_drafts(current_user: CurrentUser, session: SessionDep):
     """Get post drafts for a user"""
-    raise NotImplementedError
+
+    statement = select(Post).where(
+        Post.user_id == current_user.id, not Post.is_published
+    )
+    res = session.exec(statement).all()
+    return res
 
 
 # TODO: Implement user history retrieval
@@ -154,8 +161,8 @@ def retrieve_user_history(current_user: CurrentUser):
 # TODO: Implement user likes retrieval
 @router.get(
     "/{user_id}/likes",
-    response_model="",
+    # response_model="",
 )
 def retrieve_user_likes(current_user: CurrentUser):
     """Get posts upvoted by a user"""
-    raise NotImplementedError
+    return current_user.post_reactions

@@ -7,6 +7,7 @@ import filetype
 from botocore.exceptions import ClientError
 from dotenv import load_dotenv
 from fastapi import UploadFile
+from models.util import UploadedImage
 from PIL import Image
 from pydantic import BaseModel
 
@@ -40,7 +41,7 @@ class ImageUpload:
     __THUMBNAIL_SIZE: tuple[int, int] = (256, 256)
 
     def __init__(self, image: UploadFile):
-        self.__temp = tempfile.NamedTemporaryFile("wb+", dir=self._temp_folder)
+        self.__temp = tempfile.NamedTemporaryFile("wb+", dir=self._temp_folder, delete=False)
         if self.receive_file(image):
             self.convert_image()
         self.generate_thumbnail()
@@ -63,18 +64,19 @@ class ImageUpload:
             if real_file_size > self.__MAX_IMAGE_SIZE:
                 raise exceeded_size()
             self.__temp.write(chunk)
+        self.__temp.seek(0)
 
         return True
 
     def convert_image(self):
         filepath = self.__temp.name + ".jpg"
+
         try:
             with Image.open(self.__temp.name) as img:
                 if img.mode != "RGB":
                     img = img.convert("RGB")
                 img.save(filepath, optimize=True, quality=80)
-                self.__temp.close()
-
+            self.__temp.close()
         except OSError as e:
             logging.error(e)
             raise invalid_img_file()
@@ -96,7 +98,7 @@ class ImageUpload:
             im.save(filepath, "JPEG", optimize=True, quality=80)
         self.__thumbnail = filepath
 
-    def upload(self, folder, id) -> dict:
+    def upload(self, folder, id) -> UploadedImage|None:
         """"""
 
         full_img = f"{folder}/{id}-full.jpg"
@@ -105,12 +107,11 @@ class ImageUpload:
         original_path = upload_to_s3(self.image, full_img)
         thumbnail_path = upload_to_s3(self.thumbnail, thumbnail)
 
-
-        return UploadedImage(
-            folder=folder,
-            original=original_path,
-            thumbnail=thumbnail_path,
-        )
+        if original_path and thumbnail_path:
+            return UploadedImage(
+                original=original_path,
+                thumbnail=thumbnail_path,
+            )
 
     @classmethod
     def is_image(cls, file) -> bool:
@@ -125,14 +126,6 @@ class ImageUpload:
             raise invalid_img_file()
 
         return True
-
-
-class UploadedImage(BaseModel):
-    """Return model for picture uploads"""
-
-    folder: str
-    original: str
-    thumbnail: str
 
 
 def upload_to_s3(file_path, object_name: str):
@@ -151,7 +144,7 @@ def upload_to_s3(file_path, object_name: str):
 
     try:
         s3_client.upload_file(file_path, settings.BUCKET_NAME, object_name)
-    except ClientError as e:
+    except Exception as e:
         logging.error(e)
         return False
 

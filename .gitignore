@@ -1,4 +1,6 @@
+.gitignore
 .env*
 __pycache__
 node_modules
 chartdb-export_schema.sql
+presentation

@@ -1,5 +1,4 @@
-/* eslint-disable no-unused-vars */
-import React, { useState, useEffect } from "react";
+import React, {useState, useEffect} from "react";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
 import "react-quill/dist/quill.bubble.css";
@@ -18,7 +17,7 @@ import {
 } from "@mui/material";
 import ImagePicker from "./ImagePicker";
 
-const Editor = ({ post, onSave, isLoading }) => {
+const Editor = ({post, onSave, isLoading}) => {
   const [title, setTitle] = useState("");
   const [body, setContent] = useState("");
   const [byline, setByline] = useState("");
@@ -40,6 +39,7 @@ const Editor = ({ post, onSave, isLoading }) => {
     if (post) {
       setTitle(post.title || "");
       setContent(post.body || "");
+      setHeaderImage(post.banner_image.original||null);
     }
   }, [post]);
 
@@ -59,8 +59,8 @@ const Editor = ({ post, onSave, isLoading }) => {
 
   const modules = {
     toolbar: [
-      [{ header: [2, 3, 4, false] }],
-      [{ list: "ordered" }, { list: "bullet" }],
+      [{header: [2, 3, 4, false]}],
+      [{list: "ordered"}, {list: "bullet"}],
       ["bold", "italic", "underline", "align", "link", "image", "code-block"],
     ],
   };
@@ -137,20 +137,20 @@ const Editor = ({ post, onSave, isLoading }) => {
             height: "400px",
           }}
         >
-          <CircularProgress />
+          <CircularProgress/>
         </Box>
       </Container>
     );
   }
+  // TODO: length check <= 128
+  // TODO: Publish / Save Draft
+  // TODO: Publish -> Hidden?
+  // TODO: Category, Tags, tldr
 
   return (
     <Container maxWidth="lg">
-      <Box sx={{ py: 4 }}>
+      <Box sx={{py: 4}}>
         {/* <Paper sx={{ p: 3 }}> */}
-        <Typography variant="h4" gutterBottom>
-          {isEditMode ? "Edit Blog Post" : "New Blog Post"}
-        </Typography>
-
         <TextField
           fullWidth
           required
@@ -158,7 +158,7 @@ const Editor = ({ post, onSave, isLoading }) => {
           variant="standard"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
-          sx={{ mb: 3 }}
+          sx={{mb: 3}}
         />
 
         <TextField
@@ -166,8 +166,8 @@ const Editor = ({ post, onSave, isLoading }) => {
           label="Byline"
           variant="standard"
           value={byline}
-          // onChange={(e) => setTitle(e.target.value)}
-          sx={{ mb: 3 }}
+          onChange={(e) => setByline(e.target.value)}
+          sx={{mb: 3}}
         />
 
         <ImagePicker
@@ -177,7 +177,7 @@ const Editor = ({ post, onSave, isLoading }) => {
           disabled={loading}
         />
 
-        <Box sx={{ mb: 5 }}>
+        <Box sx={{mb: 5}}>
           <Typography variant="h3" gutterBottom>
             Body
           </Typography>

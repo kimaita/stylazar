@@ -1,8 +1,10 @@
-import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { Alert } from '@mui/material';
-import Editor from '../components/PostEditor';
-import { usePosts } from '../hooks/usePosts';
+import React, { useState, useEffect } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import { Alert, Box } from "@mui/material";
+import Editor from "../components/PostEditor";
+import { usePosts } from "../hooks/usePosts";
+import AppAppBar from "../components/AppAppBar";
+import Typography from "@mui/material/Typography";
 
 const PostEdit = () => {
   const { id } = useParams();
@@ -16,7 +18,7 @@ const PostEdit = () => {
         const data = await fetchPostById(id);
         setPost(data);
       } catch (err) {
-        navigate('/posts');
+        navigate("/posts");
       }
     };
 
@@ -28,22 +30,24 @@ const PostEdit = () => {
       await updatePost(id, postData);
       navigate(`/posts/${id}`);
     } catch (err) {
-      throw new Error('Failed to save post');
+      throw new Error("Failed to save post");
     }
   };
 
   return (
     <>
+      <AppAppBar />
       {error && (
         <Alert severity="error" sx={{ mb: 2 }}>
           {error}
         </Alert>
       )}
-      <Editor
-        post={post}
-        onSave={handleSave}
-        isLoading={loading}
-      />
+      <Box>
+        <Typography variant="h5" gutterBottom>
+          Editing Post
+        </Typography>
+        <Editor post={post} onSave={handleSave} isLoading={loading} />
+      </Box>
     </>
   );
 };

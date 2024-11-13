@@ -3,7 +3,7 @@
 import re
 import secrets
 from datetime import datetime, timezone, timedelta
-
+import logging
 import lxml.html
 from beanie import PydanticObjectId
 from beanie.operators import Set
@@ -45,6 +45,7 @@ def generate_excerpt(post: str, max_length: int = 512):
 
     return excerpt
 
+
 def generate_slug(title, session):
     """"""
     ptn_nonalpha = re.compile(r"[\W_]")
@@ -85,20 +86,19 @@ async def create_post(post: PostCreate, user_id, session, banner_image):
     db_post = Post.model_validate(post, update=update_data)
     insPost = commit_to_db(session, db_post)
 
-    if banner_image:
-        if ImageUpload.is_image(banner_image):
-            post_folder = f"{settings.POST_IMAGES}/{insPost.id}"
-            banner_pic = None
-            with ImageUpload(banner_image) as img:
-                try:
-                    banner_pic = img.upload(post_folder, insPost.id)
-                except Exception as e:
-                    print("Image upload failed: ", e)
-            if banner_pic:
-                await post_document.set({PostDocument.banner_image: banner_pic.folder})
+    if banner_image and ImageUpload.is_image(banner_image):
+        post_folder = f"{settings.POST_IMAGES}/{insPost.id}"
+        with ImageUpload(banner_image) as img:
+            banner_pic = img.upload(post_folder, insPost.id)
+        if banner_pic:
+            await post_document.set({PostDocument.banner_image: banner_pic})
+
     post_document_public = PostDocumentBase(**post_document.model_dump())
 
-    return {**insPost.model_dump(), **post_document_public.model_dump()}
+    return PostPublic(
+        **insPost.model_dump(),
+        **post_document_public.model_dump(),
+    )
 
 
 async def get_mongo_doc(mongo_id: str) -> PostDocumentBase | None:

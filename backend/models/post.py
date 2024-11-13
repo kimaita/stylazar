@@ -12,6 +12,7 @@ from sqlmodel import Field, Relationship, SQLModel
 
 from .base_model import BaseModel, UpdatableModel
 from .user import User, UserPublic
+from .util import UploadedImage
 
 if TYPE_CHECKING:
     from .comment import Comment
@@ -59,7 +60,9 @@ class PostDisplay(pydantic.BaseModel):
     title: str
     slug: str
     excerpt: str
-    banner_image: str | None
+    is_public: bool
+    is_published: bool
+    banner_image: UploadedImage | None
     published_at: datetime | None
     # edited_at: datetime | None
 
@@ -93,12 +96,14 @@ class PostDocumentBase(pydantic.BaseModel):
     byline: str | None = None
     excerpt: str | None = None
     tags: list[str] | None = None
-    banner_image: str | None = None
+    banner_image: UploadedImage | None = None
     published_at: datetime | None = None
+
 
 class PostDocumentUpdate(pydantic.BaseModel):
     """"""
-    body: str | None =None
+
+    body: str | None = None
     byline: str | None = None
     excerpt: str | None = None
     tags: list[str] | None = None
@@ -118,9 +123,7 @@ class PostDocument(Document, PostDocumentBase):
     # metadata:{word_count:int, read_time:timedelta?}
     version_history: list[PostVersion] | None = None
 
-    model_config: ClassVar[ConfigDict] = ConfigDict(
-        timezone_aware=True
-    )
+    model_config: ClassVar[ConfigDict] = ConfigDict(timezone_aware=True)
 
     class Settings:
         # The name of the collection to store these objects.
@@ -130,7 +133,6 @@ class PostDocument(Document, PostDocumentBase):
                 ("excerpt", pymongo.TEXT),
             ],
         ]
-
 
 
 class ReactionBase(SQLModel):

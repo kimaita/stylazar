@@ -1,5 +1,12 @@
 // import * as React from "react";
-import { Box, Tab, Tabs, Typography, useMediaQuery } from "@mui/material";
+import {
+  Box,
+  Container,
+  Tab,
+  Tabs,
+  Typography,
+  useMediaQuery,
+} from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import PropTypes from "prop-types";
 import * as React from "react";
@@ -8,6 +15,7 @@ import Comments from "../components/profile/CommentsTab";
 import Posts from "../components/profile/PostsTab";
 import Profile from "../components/profile/ProfileTab";
 import Saves from "../components/profile/SavesTab";
+import AppAppBar from "../components/AppAppBar";
 function CustomTabPanel(props) {
   const { children, value, index, ...other } = props;
 
@@ -47,15 +55,17 @@ export default function ProfilePage() {
   };
 
   return (
-    <Box sx={{ flex: 1, width: "100%" }}>
-      <Box
+    <Box>
+      <AppAppBar />
+      
+        {/* <Box
         sx={{
           position: "sticky",
           top: { sm: -100, md: -110 },
           bgcolor: "background.body",
           zIndex: 9995,
         }}
-      >
+      > */}
         <Box sx={{ px: { xs: 2, md: 6 } }}>
           <Typography variant="h2" sx={{ my: 2 }}>
             Account
@@ -78,6 +88,11 @@ export default function ProfilePage() {
             <Tab label="Saved" {...allyProps(4)} />
           </Tabs>
         </Box>
+        <Container
+        maxWidth="lg"
+        component="main"
+        sx={{ display: "flex", flexDirection: "column", mt: 8 }}
+      >
         <CustomTabPanel value={value} index={0}>
           <Profile />
         </CustomTabPanel>
@@ -93,7 +108,7 @@ export default function ProfilePage() {
         <CustomTabPanel value={value} index={4}>
           <Saves />
         </CustomTabPanel>
-      </Box>
+      </Container>
     </Box>
   );
 }
