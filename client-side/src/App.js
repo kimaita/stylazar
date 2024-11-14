@@ -47,7 +47,7 @@ export default function App(props) {
           />
           <Route path="/posts/:id" element={<PostDetailPage />} />
         </Routes>
-        <Footer />
+        {/* <Footer /> */}
       </Router>
     </AppTheme>
   );

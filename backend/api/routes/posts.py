@@ -1,23 +1,26 @@
 import uuid
 from typing import Annotated, Any
+from datetime import datetime, timezone, timedelta
 
 from core import exceptions
 from crud import crud_comments, crud_posts
 from fastapi import APIRouter, Form, Query, Request, UploadFile, status, HTTPException
 from models.comment import CommentCreate, CommentPublic
 from models.post import (
+    Post,
     PostCreate,
     PostPublic,
     PostUpdate,
     ReactionBase,
     PostPublicWithAuthor,
     PostDisplay,
+    PostDocument,
     PostDisplayWithAuthor,
 )
 from models.util import Message
-
+from core.utils import ImageUpload
 from ..deps import CurrentUser, SessionDep
-
+from core.config import settings
 router = APIRouter(prefix="/posts", tags=["posts"])
 
 
@@ -42,10 +45,18 @@ async def create_post(
 async def get_posts_index(
     session: SessionDep,
     offset: int = 0,
-    limit: Annotated[int, Query(le=30)] = 20,
+    limit: Annotated[int, Query(le=20)] = 20,
 ):
     """Post list for the homepage"""
-    return await crud_posts.generate_feed(offset, limit, session)
+    recency = datetime.now(timezone.utc) - timedelta(weeks=8)
+    filters = [
+        Post.is_published,
+        Post.is_public,
+        Post.updated_at > recency,
+    ]
+    return await crud_posts.get_posts(
+        filters=filters, session=session, page=offset, limit=limit
+    )
 
 
 @router.get("/{id}", response_model=PostPublicWithAuthor)
@@ -82,6 +93,30 @@ async def update_post(
 
     return await crud_posts.update_post(post=db_post, update=updates, session=session)
 
+@router.patch("/{id}/header-image")
+async def update_header(
+    id:uuid.UUID,
+    image: UploadFile,
+    session: SessionDep,
+    current_user: CurrentUser,
+) -> Any:
+    """Update post's header picture"""
+    db_post = crud_posts.post_exists(id, session)
+    post_document = await crud_posts.get_mongo_doc(db_post.mongo_id)
+    if not (db_post and post_document):
+        raise exceptions.not_found_exception("post")
+    if db_post.user_id != current_user.id:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="You cannot edit this post",
+        )
+    if ImageUpload.is_image(image):
+        post_folder = f"{settings.POST_IMAGES}/{db_post.id}"
+        with ImageUpload(image) as img:
+            banner_pic = img.upload(post_folder, db_post.id)
+        if banner_pic:
+            await post_document.set({PostDocument.banner_image: banner_pic})
+    
 
 # TODO: Implement Post deletion route
 @router.delete("/{id}", status_code=status.HTTP_204_NO_CONTENT)

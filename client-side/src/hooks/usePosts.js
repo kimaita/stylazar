@@ -1,41 +1,6 @@
 import { useCallback, useRef, useState } from "react";
 import { PostService } from "../services/postService";
 
-// export const usePosts = () => {
-//   const [posts, setPosts] = useState([]);
-//   const [loading, setLoading] = useState(true);
-//   const [error, setError] = useState(null);
-//   const [page, setPage] = useState(1);
-//   const [totalPages, setTotalPages] = useState(1);
-
-//   const fetchPosts = useCallback(async (pageNum = 1) => {
-//     try {
-//       setLoading(true);
-//       const posts = await PostService.getPostsList(pageNum);
-//       const total = posts.length;
-//       setPosts(posts);
-//       setTotalPages(Math.ceil(total / 10));
-//       setError(null);
-//       setPage(pageNum);
-//     } catch (err) {
-//       setError(err.message || "Failed to fetch posts");
-//       setPosts([]);
-//     } finally {
-//       setLoading(false);
-//     }
-//   }, []);
-
-//   return {
-//     posts,
-//     loading,
-//     error,
-//     page,
-//     totalPages,
-//     fetchPosts,
-//     setPage,
-//   };
-// };
-
 const DEFAULT_PAGE_SIZE = 10;
 
 export const usePosts = () => {
@@ -83,14 +48,24 @@ export const usePosts = () => {
   }, []);
 
   const fetchPosts = useCallback(
-    async (pageNum = page, pageSize = DEFAULT_PAGE_SIZE) => {
-      if (abortController.current) {
-        abortController.current.abort();
-      }
+    async ({
+      context = "feed",
+      userID,
+      pageNum = page,
+      pageSize = DEFAULT_PAGE_SIZE,
+    }) => {
+      abortController.current?.abort();
       abortController.current = new AbortController();
 
+      const apiCalls = {
+        author: PostService.getUserPosts,
+        own: PostService.getOwnPosts,
+        feed: PostService.getPostsList,
+      };
+
+      const apiCall = apiCalls[context];
       return withLoading(async () => {
-        const data = await PostService.getPostsList(pageNum);
+        const data = await apiCall(context === "author" ? userID : pageNum - 1);
         setPosts(data);
         setTotalPages(Math.ceil(data.length / pageSize));
         setPage(pageNum);

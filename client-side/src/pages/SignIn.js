@@ -1,24 +1,42 @@
-import Box from "@mui/material/Box";
-import Button from "@mui/material/Button";
-import FormControl from "@mui/material/FormControl";
-import FormLabel from "@mui/material/FormLabel";
-import Link from "@mui/material/Link";
-import TextField from "@mui/material/TextField";
-import Typography from "@mui/material/Typography";
-import * as React from "react";
+import {
+  Alert,
+  Box,
+  Button,
+  FormControl,
+  FormLabel,
+  Link,
+  TextField,
+  Typography,
+} from "@mui/material";
+
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import AuthContainer from "../components/AuthForm";
 import { useAuth } from "../hooks/useAuth";
 
 export default function SignIn(props) {
-  const [emailError, setEmailError] = React.useState(false);
-  const [emailErrorMessage, setEmailErrorMessage] = React.useState("");
-  const [passwordError, setPasswordError] = React.useState(false);
-  const [passwordErrorMessage, setPasswordErrorMessage] = React.useState("");
-  const [open, setOpen] = React.useState(false);
-  const [loginError, setError] = React.useState("");
-  const { signin } = useAuth();
+  const [emailError, setEmailError] = useState(false);
+  const [emailErrorMessage, setEmailErrorMessage] = useState("");
+  const [passwordError, setPasswordError] = useState(false);
+  const [passwordErrorMessage, setPasswordErrorMessage] = useState("");
+  const [open, setOpen] = useState(false);
+  const [loginError, setLoginError] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const { signin, error } = useAuth();
+
   const navigate = useNavigate();
+
+  //   const handleChange = (event) => {
+  //     const { field, value } = event.target;
+  //     if (field===password) {
+  //       setErrors((prev) => ({
+  //         ...prev,
+  //         [name]: '',
+  //       }));
+  //     }
+  //   };
 
   const handleClickOpen = () => {
     setOpen(true);
@@ -39,13 +57,14 @@ export default function SignIn(props) {
       username: formData.get("email"),
       password: formData.get("password"),
     };
-
+    setIsLoading(true);
+    setLoginError(null);
     try {
       await signin(credentials);
-    } catch (err) {
-      setError("Invalid email or password"); // Set error message on failure
+      navigate("/profile");
+    } finally {
+      setIsLoading(false);
     }
-    navigate("/");
   };
 
   const validateInputs = () => {
@@ -84,6 +103,13 @@ export default function SignIn(props) {
       >
         Sign in
       </Typography>
+
+      {error && (
+        <Alert severity="error" sx={{ mb: 2 }}>
+          Invalid credentials
+        </Alert>
+      )}
+      
       <Box
         component="form"
         onSubmit={handleSubmit}
@@ -136,11 +162,12 @@ export default function SignIn(props) {
           fullWidth
           variant="contained"
           onClick={validateInputs}
+          disabled={isLoading}
         >
-          Sign in
+          {isLoading ? "Signing in..." : "Sign In"}
         </Button>
         <Typography sx={{ textAlign: "center" }}>
-          Don&apos;t have an account?{" "}
+          Don't have an account?{" "}
           <span>
             <Link href="/signup" variant="body2" sx={{ alignSelf: "center" }}>
               Sign up

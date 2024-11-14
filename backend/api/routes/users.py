@@ -1,11 +1,11 @@
 import uuid
-from typing import Any
+from typing import Any, Annotated
 
 from core.config import settings
 from core.security import hash_password, verify_password
 from core.utils import ImageUpload, UploadedImage
-from crud import crud_users
-from fastapi import APIRouter, HTTPException, UploadFile, status
+from crud import crud_users, crud_posts
+from fastapi import APIRouter, HTTPException, UploadFile, status, Query
 from models.user import (
     UpdatePassword,
     UserPublic,
@@ -66,6 +66,61 @@ def update_profile(
     )
 
 
+@router.get(
+    "/me/posts",
+    response_model=list[PostDisplay],
+)
+async def retrieve_user_drafts(
+    current_user: CurrentUser,
+    session: SessionDep,
+    offset: int = 0,
+    limit: Annotated[int, Query(le=20)] = 20,
+):
+    """Get post authored by the signed in user"""
+
+    filters = [Post.user_id == current_user.id]
+    return await crud_posts.get_posts(
+        filters=filters, session=session, page=offset, limit=limit
+    )
+
+
+@router.get(
+    "/{user_id}/posts",
+    response_model=list[PostDisplay],
+)
+async def retrieve_user_posts(
+    user_id: uuid.UUID,
+    session: SessionDep,
+    offset: int = 0,
+    limit: Annotated[int, Query(le=20)] = 20,
+):
+    """Get posts by a user"""
+    filters = [Post.user_id == user_id, Post.is_published.is_(True)]
+    return await crud_posts.get_posts(
+        filters=filters, session=session, page=offset, limit=limit
+    )
+
+
+# TODO: Implement user history retrieval
+@router.get(
+    "/me/history",
+    response_model="",
+)
+def retrieve_user_history(current_user: CurrentUser):
+    """Get reading history for a user"""
+    raise NotImplementedError
+
+
+# TODO: Implement user likes retrieval
+@router.get(
+    "/me/likes",
+    response_model=list[PostDisplay],
+)
+def retrieve_user_likes(current_user: CurrentUser, session:SessionDep):
+    """Get posts upvoted by a user"""
+    return current_user.post_reactions
+
+
 @router.patch("/me/password", response_model=Message)
 def update_password(
     session: SessionDep, body: UpdatePassword, current_user: CurrentUser
@@ -113,56 +168,3 @@ def retrieve_user(session: SessionDep, user_id: uuid.UUID) -> Any:
             detail="No user found",
         )
     return user
-
-
-#  TODO: Implement user posts retrieval
-@router.get(
-    "/{user_id}/posts",
-    response_model=list[PostDisplay],
-)
-def retrieve_user_posts(user_id: uuid.UUID, session: SessionDep):
-    """Get posts by a user"""
-    user = crud_users.get_user_by_id(session, user_id)
-    if not user:
-        raise HTTPException(
-            status_code=404,
-            detail="No user found",
-        )
-    statement = select(Post).where(Post.user_id == user.id)
-    res = session.exec(statement).all()
-    return res
-
-
-# TODO: Implement user drafts retrieval
-@router.get(
-    "/{user_id}/drafts",
-    response_model=list[PostDisplay],
-)
-def retrieve_user_drafts(current_user: CurrentUser, session: SessionDep):
-    """Get post drafts for a user"""
-
-    statement = select(Post).where(
-        Post.user_id == current_user.id, not Post.is_published
-    )
-    res = session.exec(statement).all()
-    return res
-
-
-# TODO: Implement user history retrieval
-@router.get(
-    "/{user_id}/history",
-    response_model="",
-)
-def retrieve_user_history(current_user: CurrentUser):
-    """Get reading history for a user"""
-    raise NotImplementedError
-
-
-# TODO: Implement user likes retrieval
-@router.get(
-    "/{user_id}/likes",
-    # response_model="",
-)
-def retrieve_user_likes(current_user: CurrentUser):
-    """Get posts upvoted by a user"""
-    return current_user.post_reactions

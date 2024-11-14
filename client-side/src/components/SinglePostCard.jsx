@@ -1,12 +1,7 @@
-import Avatar from "@mui/material/Avatar";
-import Box from "@mui/material/Box";
-import Card from "@mui/material/Card";
-import CardContent from "@mui/material/CardContent";
-import CardMedia from "@mui/material/CardMedia";
-import Typography from "@mui/material/Typography";
+import { Card, CardContent, CardMedia, Typography } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import * as React from "react";
-import banner from "../assets/pic-about-01.jpg"
+import { useNavigate } from "react-router-dom";
 
 const SyledCard = styled(Card)(({ theme }) => ({
   display: "flex",
@@ -32,7 +27,7 @@ const SyledCardContent = styled(CardContent)({
   padding: 16,
   flexGrow: 1,
   "&:last-child": {
-    paddingBottom: 4,
+    paddingBottom: 2,
   },
 });
 
@@ -44,43 +39,9 @@ const StyledTypography = styled(Typography)({
   textOverflow: "ellipsis",
 });
 
-function CardFooter({ author, date_published, onAuthorClick }) {
-  return (
-    <Box
-      sx={{
-        display: "flex",
-        flexDirection: "row",
-        gap: 2,
-        alignItems: "center",
-        justifyContent: "space-between",
-        padding: "16px",
-      }}
-    >
-      <Box
-        sx={{
-          display: "flex",
-          flexDirection: "row",
-          gap: 1,
-          alignItems: "center",
-        }}
-        onClick={()=>onAuthorClick(author.id)}
-      >
-        <Avatar
-          // key={index}
-          alt={author.name}
-          src={author.profile_url}
-          sx={{ width: 24, height: 24 }}
-        />
-        <Typography variant="caption">{author.name}</Typography>
-      </Box>
-      <Typography variant="caption">{date_published}</Typography>
-    </Box>
-  );
-}
-
-export default function PostCard({ blogPost, onPostClick, onAuthorClick }) {
+export default function PostCard({ blogPost, footer }) {
   const [focusedCardIndex, setFocusedCardIndex] = React.useState(null);
-
+  const navigate = useNavigate();
   const handleFocus = (index) => {
     setFocusedCardIndex(index);
   };
@@ -88,21 +49,23 @@ export default function PostCard({ blogPost, onPostClick, onAuthorClick }) {
   const handleBlur = () => {
     setFocusedCardIndex(null);
   };
+  const handlePostClick = (postId) => {
+    navigate(`/posts/${postId}`);
+  };
 
   return (
     <SyledCard
       variant="outlined"
       onFocus={() => handleFocus(0)}
       onBlur={handleBlur}
-      onClick={()=>onPostClick(blogPost.slug)}
+      onClick={() => handlePostClick(blogPost.slug)}
       tabIndex={0}
       className={focusedCardIndex === 0 ? "Mui-focused" : ""}
     >
       <CardMedia
         component="img"
         alt="green iguana"
-        image={blogPost.banner_image.thumbnail}
-
+        image={blogPost?.banner_image.thumbnail}
         sx={{
           aspectRatio: "16 / 9",
           borderBottom: "1px solid",
@@ -110,22 +73,14 @@ export default function PostCard({ blogPost, onPostClick, onAuthorClick }) {
         }}
       />
       <SyledCardContent>
-        {/* Category */}
-        {/* <Typography gutterBottom variant="caption" component="div">
-          {blogPost.tag}
-        </Typography> */}
         <Typography gutterBottom variant="h6" component="div">
-          {blogPost.title}
+          {blogPost?.title}
         </Typography>
-        <StyledTypography variant="body2" color="text.secondary" gutterBottom>
-          {blogPost.excerpt}
+        <StyledTypography variant="body2" color="text.secondary">
+          {blogPost?.excerpt}
         </StyledTypography>
       </SyledCardContent>
-      <CardFooter
-        author={blogPost.author}
-        date_published={new Date(blogPost.published_at).toLocaleDateString()}
-        onAuthorClick={onAuthorClick}
-      />
+      {footer}
     </SyledCard>
   );
 }

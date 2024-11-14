@@ -13,7 +13,7 @@ import {
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
 // import useScrollTrigger from "@mui/material/useScrollTrigger";
-
+import formatDate from "../utils"
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import banner from "../assets/pic-about-01.jpg";
@@ -27,18 +27,7 @@ const PostTitleTypography = styled(Typography)(({ theme }) => ({
   fontFamily: "Lora, sans-serif",
 }));
 
-function formatDate(published_at) {
-  const options = {
-    year: "numeric",
-    month: "short",
-    day: "numeric",
-    hour: "numeric",
-    minute: "2-digit",
-    hour12: true,
-  };
-  const date = new Date(published_at);
-  return date.toLocaleString("en-GB", options);
-}
+
 
 function ScrollTop(props) {
   const { children } = props;
@@ -59,14 +48,14 @@ function ScrollTop(props) {
       });
     }
   };
-//   ScrollTop.propTypes = {
-//     children: PropTypes.element,
-//     /**
-//      * Injected by the documentation to work in an iframe.
-//      * You won't need it on your project.
-//      */
-//     window: PropTypes.func,
-//   };
+  //   ScrollTop.propTypes = {
+  //     children: PropTypes.element,
+  //     /**
+  //      * Injected by the documentation to work in an iframe.
+  //      * You won't need it on your project.
+  //      */
+  //     window: PropTypes.func,
+  //   };
   return (
     <Fade in={trigger}>
       <Box
@@ -96,15 +85,21 @@ export default function PostDetail({ post }) {
         mb={2}
         sx={{ fontStyle: "italic" }}
       >
-        {post?.byline || placeholder_byline}
+        {post?.byline}
       </PostContentTypography>
+
+      <Typography variant="overline">
+        {formatDate(post?.published_at)}
+      </Typography>
+      <Divider sx={{ my: 1 }} />
+
       <CardMedia
         component="img"
         height="256"
-        image={banner}
+        image={post?.banner_image.original}
         alt="Post Header"
+        sx={{ my: 3 }}
       />
-      <Divider sx={{ mt: 2, mb: 3 }} />
 
       <Stack
         direction="row"
@@ -120,13 +115,13 @@ export default function PostDetail({ post }) {
           color="primary"
           onClick={() => navigate(`/authors/${post?.author.user_id}`)}
           avatar={
-            <Avatar alt={post?.author.name} src={post?.author.profile_url} />
+            <Avatar
+              alt={post?.author.name}
+              src={post?.author.avatar_links.thumbnail}
+            />
           }
           label={post?.author.name}
         />
-        <Typography variant="overline">
-          {formatDate(post?.published_at)}
-        </Typography>
       </Stack>
       {post?.tags && (
         <Stack direction="row" spacing={3} sx={{ mb: 3 }}>

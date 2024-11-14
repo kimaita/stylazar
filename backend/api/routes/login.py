@@ -50,18 +50,7 @@ async def login_access_token(
 
 @router.post("/refresh-token", response_model=Token)
 async def refresh_access_token(request: Request) -> dict[str, str]:
-    """_summary_
-
-    Args:
-        request (Request): _description_
-
-    Raises:
-        invalid_credentials: _description_
-        invalid_credentials: _description_
-
-    Returns:
-        dict[str, str]: _description_
-    """
+    """Generates a new JWT access token from a refresh token"""
     refresh_token = request.cookies.get(JWT_COOKIE)
     if not refresh_token:
         raise invalid_credentials("Refresh token missing.")
@@ -73,12 +62,20 @@ async def refresh_access_token(request: Request) -> dict[str, str]:
     new_access_token = await create_access_token(data={"sub": str(token_data.user_id)})
     return {"access_token": new_access_token, "token_type": "bearer"}
 
+@router.post("/validate-token")
+async def validate_access_token(token:str):
+    """"""
+    token_data = await verify_token(token)
+    if not token_data:
+        return False
+    return True
+
 
 @router.delete("/logout", status_code=status.HTTP_204_NO_CONTENT)
 async def logout_user(response: Response):
     """"""
     response.delete_cookie(JWT_COOKIE)
-    return Message(message='Logged out')
+    return Message(message="Logged out")
 
 
 # TODO: Implement password reset token generation - forgotten

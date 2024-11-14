@@ -1,29 +1,51 @@
-import React, { createContext, useEffect, useState } from "react";
-import { authService } from "../services/authService";
-import { useContext, useMemo } from "react";
+import React, {
+  createContext,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 import api from "../services/api";
-
+import { authService } from "../services/authService";
 export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
-  const [token, setToken_] = useState(sessionStorage.getItem("accessToken"));
+  const [token, setToken_] = useState(authService.getAccessToken());
   const [loading, setLoading] = useState(true);
-
-  //   useEffect(() => {
-  //     authService.setupInterceptors();
-  //   }, []);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    if (token) {
-      api.defaults.headers.common["Authorization"] = "Bearer " + token;
-      sessionStorage.setItem("accessToken", token);
+    if (!token) {
+      console.debug("no cookie");
+      authService.refreshToken().catch((error) => {
+        console.error("Failed to refresh, try sign in again. Error:", error);
+      });
+    } else if (!authService.validateToken(token)) {
+      console.debug("expired cookie");
+      authService.refreshToken().catch((error) => {
+        console.error("Failed to refresh, try sign in again. Error:", error);
+      });
     }
+
+    setToken(authService.getAccessToken());
+
+    api.defaults.headers.common["Authorization"] = "Bearer " + token;
+    // authService.setupInterceptors()
+
+    authService
+      .getCurrentUser()
+      .then((authUser) => {
+        setUser(authUser);
+      })
+      .catch((err) => {
+        console.error("Failed to fetch user", err.message);
+      });
+    setLoading(false);
   }, [token]);
 
   const setToken = (newToken) => {
     setToken_(newToken);
-    
   };
   const contextValue = useMemo(
     () => ({
@@ -33,53 +55,30 @@ export const AuthProvider = ({ children }) => {
     [token]
   );
 
-  useEffect(() => {
-    if (authService.isAuthenticated()) {
-      authService
-        .getCurrentUser()
-        .then((authUser) => {
-          setUser(authUser);
-        })
-        .catch(() => {
-          console.warn("Expired token, refreshing.");
-          authService
-            .refreshToken()
-            .then(() => {
-              authService.getCurrentUser().then((authUser) => {
-                setUser(authUser);
-              });
-            })
-            .catch((error) => {
-              console.error(
-                "Failed to refresh, try sign in again. Error:",
-                error
-              );
-            });
-        });
-      setLoading(false);
-    }
-  }, []);
-
   const signup = async (userData) => {
     authService.signup(userData).then(() => {
       signin({ username: userData.email, password: userData.password });
     });
   };
 
-  const signin = async (credentials) => {
+  const signin = useCallback(async (credentials) => {
+    setError(null);
     authService
       .signin(credentials.username, credentials.password)
-      .then((authUser) => {
-        setUser(authUser);
+      .catch((error) => {
+        setError(error);
       });
-  };
+  }, []);
 
-  const signout = async () => {
-    await authService.signout();
-    setUser(null);
-  };
+  const signout = useCallback(async () => {
+    try {
+      await authService.signout();
+    } finally {
+      setUser(null);
+    }
+  }, []);
 
-  const value = { contextValue, user, loading, signup, signin, signout };
+  const value = { contextValue, user, loading, error, signup, signin, signout };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };

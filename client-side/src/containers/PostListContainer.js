@@ -1,25 +1,21 @@
-import React, { useEffect } from 'react';
-import { usePosts } from '../hooks/usePosts';
-import { PostListView } from '../components/PostListView';
+import React, { useEffect } from "react";
+import { usePosts } from "../hooks/usePosts";
+import { PostListView } from "../components/PostListView";
 
 export const PostListContainer = () => {
-  const { 
-    posts, 
-    loading, 
-    error, 
-    page, 
-    totalPages, 
-    fetchPosts, 
-    cleanup 
-  } = usePosts();
+  const { posts, loading, error, page, totalPages, fetchPosts, cleanup } =
+    usePosts();
 
   useEffect(() => {
-    fetchPosts();
+    const load = async () => {
+      await fetchPosts({});
+    };
+    load();
     return cleanup;
   }, [fetchPosts, cleanup]);
 
-  const handlePageChange = (event, pageNumber) => {
-    fetchPosts(pageNumber);
+  const handlePageChange = (event, pageNum) => {
+    fetchPosts({ pageNum });
   };
 
   return (

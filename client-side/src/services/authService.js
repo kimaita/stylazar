@@ -2,43 +2,94 @@ import api from "./api";
 
 export const authService = {
   getCurrentUser: async () => {
-    return await api.get("/users/me").then((response) => response.data);
+    const resp = await api.get("/users/me");
+
+    if (resp.status !== 200) {
+      throw new Error("Failed to get user data");
+    }
+    return resp.data;
   },
 
   signup: async (userData) => {
-    return api
-      .post("/users/register", userData)
-      .then((response) => response.data);
+    try {
+      const response = await api.post("/users/register", userData);
+      if (response.status === 201) return response.data;
+      else {
+        const error = new Error("Registration failed");
+        error.status = response.status;
+        error.cause = response.data;
+        throw error;
+      }
+    } catch (error) {
+      if (!error.status) error.status = 0;
+      throw error;
+    }
   },
 
   signin: async (username, password) => {
-    const resp = await api.post(
-      "/login/access_token",
-      { username: username, password: password },
-      {
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded",
-        },
-      }
-    );
+    try {
+      const resp = await api.post(
+        "/login/access_token",
+        { username: username, password: password },
+        {
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+          },
+        }
+      );
 
-    sessionStorage.setItem("accessToken", resp.data.access_token);
-    return await authService.getCurrentUser();
+      if (resp.status !== 200) {
+        const error = new Error("Authentication failed");
+        error.status = resp.status;
+        throw error;
+      }
+      const token = resp.data.access_token;
+      sessionStorage.setItem("accessToken", token);
+      api.defaults.headers.common["Authorization"] = "Bearer " + token;
+    } catch (error) {
+      if (!error.status) error.status = 0;
+
+      throw error;
+    }
   },
 
   refreshToken: async () => {
-    const response = await api.post("/refresh-token");
+    try {
+      const response = await api.post("/refresh-token");
+      if (response.status !== 200) {
+        const error = new Error("Token refresh failed");
+        error.status = response.status;
+        throw error;
+      }
+      sessionStorage.setItem("accessToken", response.data.access_token);
+    } catch (error) {
+      throw new Error("Token refresh failed");
+    }
+  },
 
-    sessionStorage.setItem("accessToken", response.data.access_token);
+  validateToken: async (token) => {
+    try {
+      const resp = await api.post("/validate-token",null, { params: { token } });
+      if (resp.status === 200) return resp.data;
+    } catch (err) {
+      console.error(err);
+    }
   },
 
   signout: async () => {
-    await api.delete("/logout");
-    sessionStorage.removeItem("accessToken");
+    try {
+      await api.delete("/logout");
+    } finally {
+      sessionStorage.removeItem("accessToken");
+    }
+  },
+
+  getAccessToken: () => {
+    return sessionStorage.getItem("accessToken");
   },
 
   isAuthenticated: () => {
-    const accessToken = sessionStorage.getItem("accessToken");
+    const accessToken = authService.getAccessToken();
     return !!accessToken;
   },
 
@@ -46,7 +97,7 @@ export const authService = {
   setupInterceptors: () => {
     api.interceptors.request.use(
       async (config) => {
-        const accessToken = sessionStorage.getItem("accessToken");
+        const accessToken = authService.getAccessToken();
         if (accessToken) {
           config.headers.Authorization = `Bearer ${accessToken}`;
         }

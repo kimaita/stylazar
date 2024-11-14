@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from "react";
+import React, { useState, useEffect } from "react";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
 import "react-quill/dist/quill.bubble.css";
@@ -17,7 +17,7 @@ import {
 } from "@mui/material";
 import ImagePicker from "./ImagePicker";
 
-const Editor = ({post, onSave, isLoading}) => {
+const Editor = ({ post, onSave, isLoading }) => {
   const [title, setTitle] = useState("");
   const [body, setContent] = useState("");
   const [byline, setByline] = useState("");
@@ -39,7 +39,7 @@ const Editor = ({post, onSave, isLoading}) => {
     if (post) {
       setTitle(post.title || "");
       setContent(post.body || "");
-      setHeaderImage(post.banner_image.original||null);
+      setHeaderImage(post.banner_image.original || null);
     }
   }, [post]);
 
@@ -52,16 +52,15 @@ const Editor = ({post, onSave, isLoading}) => {
     "header",
     "list",
     "bullet",
-    "align",
     "code-block",
     "image",
   ];
 
   const modules = {
     toolbar: [
-      [{header: [2, 3, 4, false]}],
-      [{list: "ordered"}, {list: "bullet"}],
-      ["bold", "italic", "underline", "align", "link", "image", "code-block"],
+      [{ header: [2, 3, 4, false] }],
+      [{ list: "ordered" }, { list: "bullet" }],
+      ["bold", "italic", "underline", "link", "image", "code-block"],
     ],
   };
 
@@ -77,15 +76,18 @@ const Editor = ({post, onSave, isLoading}) => {
     setLoading(true);
 
     try {
-      const form = new FormData();
-      form.append("post_title", title);
-      form.append("post_body", body);
-      form.append("publish", publish);
-      if (bannerImage) {
-        form.append("banner_image", bannerImage);
-      }
+      
+      //   if (bannerImage) {
+      //     form.append("banner_image", bannerImage);
+      //   }
+      const update = {
+        ...(post?.title !== title && { title }),
+        ...(post?.body !== body && { body }),
+        ...(post?.byline !== byline && { byline }),
+        ...(post?.is_published !== publish && { is_published: publish }),
+      };
 
-      await onSave(form);
+      await onSave(update);
 
       showNotification(
         `Post ${isEditMode ? "updated" : "created"} successfully!`
@@ -104,11 +106,20 @@ const Editor = ({post, onSave, isLoading}) => {
     }
   };
 
+  const handleSaveDraft = async() => {
+    setPublish(false);
+    await handleSave();
+  };
+  const handlePublish = async() => {
+    setPublish(true);
+    await handleSave();
+  };
   const handleClear = () => {
     if (isEditMode) {
       setTitle(post.title || "");
       setContent(post.body || "");
       setByline(post.byline || "");
+      
     } else {
       setTitle("");
       setContent("");
@@ -137,7 +148,7 @@ const Editor = ({post, onSave, isLoading}) => {
             height: "400px",
           }}
         >
-          <CircularProgress/>
+          <CircularProgress />
         </Box>
       </Container>
     );
@@ -149,7 +160,7 @@ const Editor = ({post, onSave, isLoading}) => {
 
   return (
     <Container maxWidth="lg">
-      <Box sx={{py: 4}}>
+      <Box sx={{ py: 4 }}>
         {/* <Paper sx={{ p: 3 }}> */}
         <TextField
           fullWidth
@@ -158,7 +169,7 @@ const Editor = ({post, onSave, isLoading}) => {
           variant="standard"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
-          sx={{mb: 3}}
+          sx={{ mb: 3 }}
         />
 
         <TextField
@@ -167,17 +178,17 @@ const Editor = ({post, onSave, isLoading}) => {
           variant="standard"
           value={byline}
           onChange={(e) => setByline(e.target.value)}
-          sx={{mb: 3}}
+          sx={{ mb: 3 }}
         />
 
         <ImagePicker
           onImageSelect={handleImageSelect}
           onError={(error) => showNotification(error, "error")}
-          //   defaultImage={formData.imagePreview}
+          defaultImage={post?.banner_image.thumbnail}
           disabled={loading}
         />
 
-        <Box sx={{mb: 5}}>
+        <Box sx={{ my: 5 }}>
           <Typography variant="h3" gutterBottom>
             Body
           </Typography>
@@ -204,12 +215,16 @@ const Editor = ({post, onSave, isLoading}) => {
           <Button variant="outlined" onClick={handleClear}>
             {isEditMode ? "Reset" : "Clear"}
           </Button>
+          <Button variant="outlined" onClick={handleSaveDraft}>
+            Save Draft
+          </Button>
           <Button
-            // variant="contained"
-            onClick={handleSave}
+            variant="outlined"
+            color="success"
+            onClick={handlePublish}
             disabled={!title || !body}
           >
-            {isEditMode ? "Update" : "Save"} Post
+            Publish
           </Button>
         </Box>
         {/* </Paper> */}

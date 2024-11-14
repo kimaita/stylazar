@@ -13,11 +13,49 @@ export const PostService = {
     try {
       const resp = await api.get("/posts/", {
         params: {
-          offset: page - 1,
+          offset: page,
           limit: count,
         },
       });
       return resp.data;
+    } catch (error) {
+      console.error(error);
+    }
+  },
+
+  /**
+   * Retrieve signed in user's posts
+   * @param {int} page
+   * @param {int} count
+   */
+  getOwnPosts: async (page, count = 20) => {
+    try {
+      const resp = await api.get("/users/me/posts", {
+        params: {
+          offset: page,
+          limit: count,
+        },
+      });
+      if (resp.status === 200) return resp.data;
+    } catch (error) {
+      console.error(error);
+    }
+  },
+  /**
+   * Retrieve a user's posts
+   * @param {String} user_id
+   * @param {int} page
+   * @param {int} count
+   */
+  getUserPosts: async (userID, page, count = 20) => {
+    try {
+      const resp = await api.get(`/users/${userID}/posts`, {
+        params: {
+          offset: page,
+          limit: count,
+        },
+      });
+      if (resp.status === 200) return resp.data;
     } catch (error) {
       console.error(error);
     }
@@ -37,8 +75,8 @@ export const PostService = {
 
   /**
    * Creates a new post
-   * @param {FormData} formData 
-   * @returns 
+   * @param {FormData} formData
+   * @returns
    */
   createPost: async (formData) => {
     try {

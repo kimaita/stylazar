@@ -64,13 +64,13 @@ class PostDisplay(pydantic.BaseModel):
     is_published: bool
     banner_image: UploadedImage | None
     published_at: datetime | None
-    # edited_at: datetime | None
+    updated_at: datetime | None
 
 
 class PostAuthor(SQLModel):
     user_id: uuid.UUID
     name: str
-    profile_pic: str | None
+    avatar_links: UploadedImage | None
 
 
 class PostDisplayWithAuthor(PostDisplay):

@@ -9,9 +9,10 @@ import {
   Box,
 } from "@mui/material";
 import Grid from "@mui/material/Grid2";
-import PostCard from "./SinglePostCard";
+import FeedPostCard from "./FeedPostCard";
 import { useNavigate } from "react-router-dom";
 import { ErrorOutlineOutlined } from "@mui/icons-material";
+
 export const PostListView = ({
   posts,
   loading,
@@ -56,8 +57,8 @@ export const PostListView = ({
     <>
       <Grid container spacing={2} columns={12}>
         {posts.map((post) => (
-          <Grid size={{ xs: 12, sm: 6, md: 4 }} key={post.id}>
-            <PostCard
+          <Grid size={{ xs: 12, sm: 6, md: 3 }} key={post.id}>
+            <FeedPostCard
               blogPost={post}
               onPostClick={handlePostClick}
               onAuthorClick={handleAuthorClick}
@@ -68,7 +69,7 @@ export const PostListView = ({
       <Pagination
         count={totalPages}
         page={page}
-        onChange={(e, value) => onPageChange(value)}
+        onChange={(e, page) => onPageChange(page)}
         sx={{ mt: 4, display: "flex", justifyContent: "center" }}
         variant="outlined"
         shape="rounded"

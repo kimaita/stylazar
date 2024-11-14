@@ -18,7 +18,8 @@ const PostEdit = () => {
         const data = await fetchPostById(id);
         setPost(data);
       } catch (err) {
-        navigate("/posts");
+        // navigate("/posts");
+        throw new Error("Failed to load post");
       }
     };
 

@@ -1,4 +1,3 @@
-// import * as React from "react";
 import {
   Box,
   Container,
@@ -16,6 +15,7 @@ import Posts from "../components/profile/PostsTab";
 import Profile from "../components/profile/ProfileTab";
 import Saves from "../components/profile/SavesTab";
 import AppAppBar from "../components/AppAppBar";
+import { useAuth } from "../hooks/useAuth";
 function CustomTabPanel(props) {
   const { children, value, index, ...other } = props;
 
@@ -49,6 +49,8 @@ export default function ProfilePage() {
   const [value, setValue] = React.useState(0);
   const theme = useTheme();
   const isSmallScreen = useMediaQuery(theme.breakpoints.down("sm"));
+  const { user } = useAuth();
+
 
   const handleChange = (event, newValue) => {
     setValue(newValue);
@@ -94,7 +96,7 @@ export default function ProfilePage() {
         sx={{ display: "flex", flexDirection: "column", mt: 8 }}
       >
         <CustomTabPanel value={value} index={0}>
-          <Profile />
+          <Profile user={user} />
         </CustomTabPanel>
         <CustomTabPanel value={value} index={1}>
           <Posts />

@@ -118,7 +118,7 @@ async def get_post_by_id(
     author = PostAuthor(
         user_id=post.author.id,
         name=post.author.name,
-        profile_pic=post.author.picture_url,
+        avatar_links=post.author.avatar_links,
     )
 
     post_document = await get_mongo_doc(post.mongo_id)
@@ -151,6 +151,8 @@ async def update_post(post: Post, update: PostUpdate, session: Session):
     update_dict = update.model_dump(exclude_unset=True)
     if "title" in update_dict:
         update_dict["slug"] = generate_slug(update_dict.get("title"), session)
+    if "body" in update_dict:
+        update_dict['excerpt'] = generate_excerpt(update_dict['body'])
     post.sqlmodel_update(update_dict)
 
     if update_dict.get("is_published"):
@@ -164,6 +166,7 @@ async def update_post(post: Post, update: PostUpdate, session: Session):
 
     db_post = commit_to_db(session, post)
     mongo_post = PostDocumentBase(**post_doc.model_dump())
+    
 
     return PostPublic(**db_post.model_dump(), **mongo_post.model_dump())
 
@@ -173,22 +176,28 @@ def delete_post():
     """"""
 
 
+async def get_posts(
+    filters, session: Session, page, limit, order=Post.updated_at.desc()
+):
+    """"""
+    statement = (
+        select(Post).where(*filters).order_by(order).offset(page * limit).limit(limit)
+    )
+    posts = session.exec(statement)
+
+    return [await get_post_by_id(post.id, session) for post in posts]
+
+
 async def generate_feed(page: int, page_size: int, session: Session):
     """"""
     recency = datetime.now(timezone.utc) - timedelta(weeks=8)
-    statement = (
-        select(Post)
-        .where(
-            Post.is_published,
-            Post.is_public,
-            Post.updated_at > recency,
-        )
-        .order_by(Post.updated_at.desc())
-        .offset(page * page_size)
-        .limit(page_size)
+    filters = (
+        Post.is_published,
+        Post.is_public,
+        Post.updated_at > recency,
     )
-    posts = session.exec(statement)
-    feed = [await get_post_by_id(post.id, session) for post in posts]
+
+    feed = await get_posts(filters=filters, session=session, page=page, limit=page_size)
     return feed
 
 
