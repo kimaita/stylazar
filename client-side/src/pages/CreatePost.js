@@ -16,6 +16,7 @@ const CreatePost = () => {
     } catch (err) {
       throw new Error("Failed to create post");
     }
+
   };
 
 

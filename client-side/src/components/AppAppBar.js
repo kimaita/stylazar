@@ -231,7 +231,7 @@ export default function AppAppBar(props) {
               <Tooltip title="Account">
                 <Avatar
                   alt={user?.name}
-                  src={user?.avatar_links.thumbnail}
+                  src={user?.avatar_links?.thumbnail}
                   onClick={handleProfileMenuOpen}
                 />
               </Tooltip>

@@ -66,7 +66,7 @@ def post_exists(id: uuid.UUID, session: Session) -> Post | None:
 
 async def create_post(post: PostCreate, user_id, session, banner_image):
     """"""
-    post_document = PostDocument(body=post.body)
+    post_document = PostDocument(body=post.body, byline=post.byline)
 
     if post.body:
         post_document.excerpt = generate_excerpt(post.body)
@@ -93,7 +93,7 @@ async def create_post(post: PostCreate, user_id, session, banner_image):
         if banner_pic:
             await post_document.set({PostDocument.banner_image: banner_pic})
 
-    post_document_public = PostDocumentBase(**post_document.model_dump())
+    post_document_public = PostDocumentBase(**post_document.model_dump(exclude='id'))
 
     return PostPublic(
         **insPost.model_dump(),
@@ -101,12 +101,9 @@ async def create_post(post: PostCreate, user_id, session, banner_image):
     )
 
 
-async def get_mongo_doc(mongo_id: str) -> PostDocumentBase | None:
+async def get_mongo_doc(mongo_id: str) -> PostDocument | None:
     """"""
-    post_doc = await PostDocument.get(PydanticObjectId(mongo_id))
-    if post_doc:
-        return PostDocumentBase(**post_doc.model_dump())
-
+    return await PostDocument.get(PydanticObjectId(mongo_id))
 
 async def get_post_by_id(
     id: uuid.UUID, session: Session
@@ -124,7 +121,7 @@ async def get_post_by_id(
     post_document = await get_mongo_doc(post.mongo_id)
 
     return PostPublicWithAuthor(
-        **post.model_dump(), **post_document.model_dump(), author=author
+        **post.model_dump(), **post_document.model_dump(exclude='id'), author=author
     )
 
 
@@ -152,7 +149,7 @@ async def update_post(post: Post, update: PostUpdate, session: Session):
     if "title" in update_dict:
         update_dict["slug"] = generate_slug(update_dict.get("title"), session)
     if "body" in update_dict:
-        update_dict['excerpt'] = generate_excerpt(update_dict['body'])
+        update_dict["excerpt"] = generate_excerpt(update_dict["body"])
     post.sqlmodel_update(update_dict)
 
     if update_dict.get("is_published"):
@@ -166,7 +163,6 @@ async def update_post(post: Post, update: PostUpdate, session: Session):
 
     db_post = commit_to_db(session, post)
     mongo_post = PostDocumentBase(**post_doc.model_dump())
-    
 
     return PostPublic(**db_post.model_dump(), **mongo_post.model_dump())
 

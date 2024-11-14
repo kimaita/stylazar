@@ -7,6 +7,7 @@ import {
   Box,
   TextField,
   Button,
+  Checkbox,
   Paper,
   Typography,
   Container,
@@ -14,6 +15,7 @@ import {
   Alert,
   CircularProgress,
   Divider,
+  FormControlLabel,
 } from "@mui/material";
 import ImagePicker from "./ImagePicker";
 
@@ -21,7 +23,8 @@ const Editor = ({ post, onSave, isLoading }) => {
   const [title, setTitle] = useState("");
   const [body, setContent] = useState("");
   const [byline, setByline] = useState("");
-  const [publish, setPublish] = useState(false);
+  const [publish, setPublish] = useState(post?.is_published || false);
+  const [checked, setChecked] = useState(false);
   const [bannerImage, setHeaderImage] = useState(null);
   const [showAlert, setShowAlert] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
@@ -39,7 +42,7 @@ const Editor = ({ post, onSave, isLoading }) => {
     if (post) {
       setTitle(post.title || "");
       setContent(post.body || "");
-      setHeaderImage(post.banner_image.original || null);
+      setHeaderImage(post?.banner_image?.original || null);
     }
   }, [post]);
 
@@ -76,16 +79,21 @@ const Editor = ({ post, onSave, isLoading }) => {
     setLoading(true);
 
     try {
-      
-      //   if (bannerImage) {
-      //     form.append("banner_image", bannerImage);
-      //   }
-      const update = {
-        ...(post?.title !== title && { title }),
-        ...(post?.body !== body && { body }),
-        ...(post?.byline !== byline && { byline }),
-        ...(post?.is_published !== publish && { is_published: publish }),
-      };
+      const createData = new FormData();
+      createData.append("post_title", title);
+      createData.append("post_body", body);
+      createData.append("publish", publish);
+      if (byline) createData.append("post_byline", byline);
+      if (bannerImage) createData.append("banner_image", bannerImage);
+
+      const update = isEditMode
+        ? {
+            ...(post?.title !== title && { title }),
+            ...(post?.body !== body && { body }),
+            ...(post?.byline !== byline && { byline }),
+            ...{ is_published: publish },
+          }
+        : createData
 
       await onSave(update);
 
@@ -106,20 +114,15 @@ const Editor = ({ post, onSave, isLoading }) => {
     }
   };
 
-  const handleSaveDraft = async() => {
-    setPublish(false);
-    await handleSave();
+  const handlePublicChange = (event) => {
+    setPublish(event.target.checked);
   };
-  const handlePublish = async() => {
-    setPublish(true);
-    await handleSave();
-  };
+
   const handleClear = () => {
     if (isEditMode) {
       setTitle(post.title || "");
       setContent(post.body || "");
       setByline(post.byline || "");
-      
     } else {
       setTitle("");
       setContent("");
@@ -184,7 +187,7 @@ const Editor = ({ post, onSave, isLoading }) => {
         <ImagePicker
           onImageSelect={handleImageSelect}
           onError={(error) => showNotification(error, "error")}
-          defaultImage={post?.banner_image.thumbnail}
+          defaultImage={post?.banner_image?.thumbnail}
           disabled={loading}
         />
 
@@ -204,6 +207,17 @@ const Editor = ({ post, onSave, isLoading }) => {
             }}
           />
         </Box>
+        <FormControlLabel
+          label="Publish"
+          control={
+            <Checkbox
+              checked={publish}
+              onChange={handlePublicChange}
+              inputProps={{ "aria-label": "controlled" }}
+              label="Publish"
+            />
+          }
+        />
 
         <Box
           sx={{
@@ -215,16 +229,16 @@ const Editor = ({ post, onSave, isLoading }) => {
           <Button variant="outlined" onClick={handleClear}>
             {isEditMode ? "Reset" : "Clear"}
           </Button>
-          <Button variant="outlined" onClick={handleSaveDraft}>
+          {/* <Button variant="outlined" onClick={handleSaveDraft}>
             Save Draft
-          </Button>
+          </Button> */}
           <Button
             variant="outlined"
             color="success"
-            onClick={handlePublish}
+            onClick={handleSave}
             disabled={!title || !body}
           >
-            Publish
+            Save
           </Button>
         </Box>
         {/* </Paper> */}

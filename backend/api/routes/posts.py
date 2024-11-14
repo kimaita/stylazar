@@ -21,6 +21,7 @@ from models.util import Message
 from core.utils import ImageUpload
 from ..deps import CurrentUser, SessionDep
 from core.config import settings
+
 router = APIRouter(prefix="/posts", tags=["posts"])
 
 
@@ -30,11 +31,12 @@ async def create_post(
     user: CurrentUser,
     post_title: Annotated[str, Form()],
     post_body: Annotated[str, Form()],
+    post_byline: Annotated[str, Form()] | None = None,
     publish: Annotated[bool, Form()] = False,
     banner_image: UploadFile | None = None,
 ):
     """Upload a post"""
-    post = PostCreate(title=post_title, body=post_body, is_published=publish)
+    post = PostCreate(title=post_title, body=post_body, byline=post_byline, is_published=publish)
     res = await crud_posts.create_post(
         post, user_id=user.id, session=session, banner_image=banner_image
     )
@@ -51,7 +53,7 @@ async def get_posts_index(
     recency = datetime.now(timezone.utc) - timedelta(weeks=8)
     filters = [
         Post.is_published,
-        Post.is_public,
+        # Post.is_public,
         Post.updated_at > recency,
     ]
     return await crud_posts.get_posts(
@@ -93,9 +95,10 @@ async def update_post(
 
     return await crud_posts.update_post(post=db_post, update=updates, session=session)
 
+
 @router.patch("/{id}/header-image")
 async def update_header(
-    id:uuid.UUID,
+    id: uuid.UUID,
     image: UploadFile,
     session: SessionDep,
     current_user: CurrentUser,
@@ -116,7 +119,7 @@ async def update_header(
             banner_pic = img.upload(post_folder, db_post.id)
         if banner_pic:
             await post_document.set({PostDocument.banner_image: banner_pic})
-    
+
 
 # TODO: Implement Post deletion route
 @router.delete("/{id}", status_code=status.HTTP_204_NO_CONTENT)

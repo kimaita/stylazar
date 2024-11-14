@@ -30,7 +30,7 @@ export const AuthProvider = ({ children }) => {
 
     setToken(authService.getAccessToken());
 
-    api.defaults.headers.common["Authorization"] = "Bearer " + token;
+    api.defaults.headers.common["Authorization"] = "Bearer " + authService.getAccessToken();
     // authService.setupInterceptors()
 
     authService
@@ -63,11 +63,14 @@ export const AuthProvider = ({ children }) => {
 
   const signin = useCallback(async (credentials) => {
     setError(null);
-    authService
-      .signin(credentials.username, credentials.password)
-      .catch((error) => {
-        setError(error);
+    try {
+      await authService.signin(credentials.username, credentials.password);
+      authService.getCurrentUser().then((authUser) => {
+        setUser(authUser);
       });
+    } catch (error) {
+      setError(error);
+    }
   }, []);
 
   const signout = useCallback(async () => {

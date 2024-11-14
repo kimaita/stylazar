@@ -65,7 +65,7 @@ export default function PostCard({ blogPost, footer }) {
       <CardMedia
         component="img"
         alt="green iguana"
-        image={blogPost?.banner_image.thumbnail}
+        image={blogPost?.banner_image?.thumbnail}
         sx={{
           aspectRatio: "16 / 9",
           borderBottom: "1px solid",

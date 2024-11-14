@@ -61,7 +61,7 @@ export default function SignIn(props) {
     setLoginError(null);
     try {
       await signin(credentials);
-      navigate("/profile");
+      navigate("/");
     } finally {
       setIsLoading(false);
     }

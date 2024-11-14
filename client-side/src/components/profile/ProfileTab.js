@@ -29,7 +29,7 @@ function AccountInfo({user}) {
       <CardContent>
         <Stack spacing={2} sx={{ alignItems: "center" }}>
           <div>
-            <Avatar src={user?.avatar_links.thumbnail} sx={{ height: "100px", width: "100px" }} />
+            <Avatar src={user?.avatar_links?.thumbnail} sx={{ height: "100px", width: "100px" }} />
           </div>
           <Stack spacing={1} sx={{ textAlign: "center" }}>
             <Typography variant="h5">{user?.name}</Typography>

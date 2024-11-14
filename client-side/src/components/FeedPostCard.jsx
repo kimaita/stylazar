@@ -26,7 +26,7 @@ function CardFooter({ author, date_published, onAuthorClick }) {
         <Avatar
           // key={index}
           alt={author.name}
-          src={author.avatar_links.thumbnail}
+          src={author?.avatar_links?.thumbnail}
           sx={{ width: 32, height: 32 }}
         />
         <Typography variant="caption">{author.name}</Typography>

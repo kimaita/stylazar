@@ -99,7 +99,7 @@ const PostDetailPage = (props) => {
       <Container maxWidth="md" sx={{ mt: 4 }}>
         <Button
           startIcon={<ArrowBack />}
-          onClick={() => navigate(-1)}
+          onClick={() => navigate('/')}
           sx={{ mb: 2 }}
         >
           Back to Posts
@@ -122,7 +122,7 @@ const PostDetailPage = (props) => {
       >
         <Button
           startIcon={<ArrowBack />}
-          onClick={() => navigate(-1)}
+          onClick={() => navigate("/")}
           sx={{ mb: 2 }}
         >
           Back to Posts

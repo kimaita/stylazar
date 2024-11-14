@@ -10,10 +10,11 @@ import {
   Stack,
   Typography,
   useScrollTrigger,
+  Skeleton,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
 // import useScrollTrigger from "@mui/material/useScrollTrigger";
-import formatDate from "../utils"
+import formatDate from "../utils";
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import banner from "../assets/pic-about-01.jpg";
@@ -26,8 +27,6 @@ const PostContentTypography = styled(Typography)(({ theme }) => ({
 const PostTitleTypography = styled(Typography)(({ theme }) => ({
   fontFamily: "Lora, sans-serif",
 }));
-
-
 
 function ScrollTop(props) {
   const { children } = props;
@@ -69,9 +68,6 @@ function ScrollTop(props) {
   );
 }
 
-const placeholder_byline =
-  "Quisque scelerisque, sem ultrices finibus pretium, eros ipsum tristique magna, nec condimentum lacus odio at neque. Suspendisse tellus dui, sagittis vitae lobortis sit amet, blandit sed quam. Nulla lectus mauris, hendrerit ac augue.";
-
 export default function PostDetail({ post }) {
   const navigate = useNavigate();
 
@@ -93,13 +89,15 @@ export default function PostDetail({ post }) {
       </Typography>
       <Divider sx={{ my: 1 }} />
 
-      <CardMedia
-        component="img"
-        height="256"
-        image={post?.banner_image.original}
-        alt="Post Header"
-        sx={{ my: 3 }}
-      />
+      {post?.banner_image && (
+        <CardMedia
+          component="img"
+          height="256"
+          image={post?.banner_image?.original || <Skeleton />}
+          alt="Post Header"
+          sx={{ my: 3 }}
+        />
+      )}
 
       <Stack
         direction="row"
@@ -117,7 +115,7 @@ export default function PostDetail({ post }) {
           avatar={
             <Avatar
               alt={post?.author.name}
-              src={post?.author.avatar_links.thumbnail}
+              src={post?.author.avatar_links?.thumbnail}
             />
           }
           label={post?.author.name}

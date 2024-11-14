@@ -40,6 +40,7 @@ class PostCreate(SQLModel):
 
     title: str = Field(max_length=128)
     body: str | None
+    byline: str | None
     is_published: bool = False
 
 
