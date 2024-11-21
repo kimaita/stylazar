@@ -11,7 +11,7 @@ import {
 
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import AuthContainer from "../components/AuthForm";
+import AuthContainer from "../components/auth/AuthForm";
 import { useAuth } from "../hooks/useAuth";
 
 export default function SignIn(props) {

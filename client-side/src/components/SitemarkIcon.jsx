@@ -1,6 +1,5 @@
-import { Link, Typography } from "@mui/material";
+import { Typography } from "@mui/material";
 import { styled } from '@mui/material/styles';
-import * as React from "react";
 import { useNavigate } from "react-router-dom";
 
 const LogoTypography = styled(Typography)(({ theme }) => ({

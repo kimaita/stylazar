@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Alert, Box } from "@mui/material";
-import Editor from "../components/PostEditor";
+import Editor from "../components/editor/PostEditor";
 import { usePosts } from "../hooks/usePosts";
 import AppAppBar from "../components/AppAppBar";
 import Typography from "@mui/material/Typography";

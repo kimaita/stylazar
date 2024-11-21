@@ -1,7 +1,7 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { Alert, Box, Typography } from "@mui/material";
-import Editor from "../components/PostEditor";
+import Editor from "../components/editor/PostEditor";
 import { usePosts } from "../hooks/usePosts";
 import AppAppBar from "../components/AppAppBar";
 

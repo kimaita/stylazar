@@ -1,6 +1,6 @@
 import Stack from "@mui/material/Stack";
 import { styled } from "@mui/material/styles";
-import SitemarkIcon from "../components/SitemarkIcon";
+import SitemarkIcon from "./SitemarkIcon";
 import Card from "./FormCard";
 
 const StyledContainer = styled(Stack)(({ theme }) => ({

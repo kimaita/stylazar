@@ -1,4 +1,3 @@
-import * as React from "react";
 import CssBaseline from "@mui/material/CssBaseline";
 import AppTheme from "./shared-theme/AppTheme";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
@@ -10,7 +9,6 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import PostDetailPage from "./pages/PostDetails";
 import PostEdit from "./pages/EditPost";
 import CreatePost from "./pages/CreatePost";
-import Footer from "./components/Footer";
 
 export default function App(props) {
   return (

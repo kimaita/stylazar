@@ -9,7 +9,7 @@ import {
   Box,
 } from "@mui/material";
 import Grid from "@mui/material/Grid2";
-import FeedPostCard from "./FeedPostCard";
+import FeedPostCard from "./feed/FeedPostCard";
 import { useNavigate } from "react-router-dom";
 import { ErrorOutlineOutlined } from "@mui/icons-material";
 
